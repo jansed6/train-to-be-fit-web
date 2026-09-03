@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { inputClass } from "@/components/ui/Input";
+import { MoodBear } from "@/components/MoodBear";
 import { cn } from "@/lib/cn";
 
 export function SignIn() {
@@ -38,11 +39,9 @@ export function SignIn() {
 
   return (
     <main className="mx-auto flex min-h-[80vh] max-w-[420px] flex-col justify-center px-4">
-      <div className="mb-6 flex items-center gap-2">
-        <span className="rounded-full bg-[rgba(255,122,27,0.12)] px-2.5 py-0.5 text-accent">
-          🐻
-        </span>
-        <strong className="text-lg">Train to be fit</strong>
+      <div className="mb-6 flex flex-col items-center gap-2">
+        <MoodBear mood="cheer" size={128} />
+        <strong className="text-xl">Train to be fit</strong>
       </div>
 
       <Card>

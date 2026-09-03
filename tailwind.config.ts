@@ -9,6 +9,7 @@ export default {
       colors: {
         accent: "var(--accent)",
         "accent-light": "var(--accent-light)",
+        "accent-strong": "var(--accent-strong)",
         bg: "var(--bg)",
         surface: "var(--surface)",
         "surface-2": "var(--surface-2)",
@@ -18,6 +19,9 @@ export default {
       },
       borderRadius: {
         card: "18px",
+      },
+      boxShadow: {
+        card: "var(--shadow-card)",
       },
     },
   },

@@ -10,7 +10,10 @@ export function Card({
 }) {
   return (
     <div
-      className={cn("rounded-card border border-hairline bg-surface p-4", className)}
+      className={cn(
+        "rounded-card border border-hairline bg-surface p-4 shadow-card",
+        className,
+      )}
     >
       {children}
     </div>

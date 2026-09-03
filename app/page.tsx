@@ -6,10 +6,18 @@ import { StatTile } from "@/components/ui/StatTile";
 import { buttonClass } from "@/components/ui/Button";
 import { PlanCard } from "@/components/home/PlanCard";
 import { StarterPlanCard } from "@/components/StarterPlanCard";
+import { MoodBear } from "@/components/MoodBear";
 import { starterPlans } from "@/lib/starterPlans";
 import { usePlans, useSessions } from "@/lib/hooks";
 import { signOut } from "@/lib/auth";
 import { totalVolume } from "@/lib/format";
+
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 11) return "Good morning — let's move.";
+  if (h < 18) return "Time to train.";
+  return "Evening session?";
+}
 
 function startOfWeekMs(): number {
   const d = new Date();
@@ -31,26 +39,26 @@ export default function HomePage() {
 
   return (
     <Container>
-      <div className="mb-4 flex items-center gap-2">
-        <span
-          className="rounded-full bg-[rgba(255,122,27,0.12)] px-2.5 py-0.5 text-accent"
-          aria-hidden
-        >
-          🐻
-        </span>
-        <strong>Train to be fit</strong>
+      <div className="mb-5 flex items-center gap-3">
+        <MoodBear mood="strong" size={42} />
+        <div className="flex-1">
+          <div className="text-lg font-extrabold leading-tight">
+            Train to be fit
+          </div>
+          <div className="text-xs text-muted">{greeting()}</div>
+        </div>
         <button
           type="button"
           onClick={() => signOut()}
-          className="ml-auto text-sm text-muted"
+          className="text-sm text-muted hover:text-content"
         >
           Sign out
         </button>
       </div>
 
-      <div className="mb-5 grid grid-cols-2 gap-3">
+      <div className="mb-6 grid grid-cols-2 gap-3">
         <StatTile value={weekSessions.length} label="this week" />
-        <StatTile value={weekVolume} label="volume (kg)" />
+        <StatTile value={weekVolume} label="volume kg" />
       </div>
 
       <div className="mb-3 flex items-center justify-between gap-2">
@@ -65,6 +73,9 @@ export default function HomePage() {
 
       {plans === undefined ? null : plans.length === 0 ? (
         <div className="py-8">
+          <div className="mb-3 flex justify-center">
+            <MoodBear mood="cheer" size={140} />
+          </div>
           <p className="mb-3 text-center text-muted">No plan yet.</p>
           <div className="mx-auto max-w-[420px]">
             <StarterPlanCard plan={starterPlans[0]} />

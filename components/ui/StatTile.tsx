@@ -8,11 +8,13 @@ export function StatTile({
   label: string;
 }) {
   return (
-    <div className="rounded-[14px] bg-surface-2 p-3.5">
-      <div className="text-[28px] font-bold leading-none tabular-nums">
+    <div className="rounded-2xl border border-hairline bg-surface-2 p-4">
+      <div className="text-[34px] font-extrabold leading-none tracking-tight tabular-nums text-accent">
         {value}
       </div>
-      <div className="mt-1 text-xs text-muted">{label}</div>
+      <div className="mt-1.5 text-xs font-medium uppercase tracking-wide text-muted">
+        {label}
+      </div>
     </div>
   );
 }

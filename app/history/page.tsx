@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SessionRow } from "@/components/history/SessionRow";
 import { Sparkline } from "@/components/progress/Sparkline";
+import { MoodBear } from "@/components/MoodBear";
 import { useSessions } from "@/lib/hooks";
 import { exerciseSummaries } from "@/lib/progress";
 import { loadSampleData } from "@/lib/sampleData";
@@ -22,6 +23,9 @@ export default function HistoryPage() {
 
       {sessions === undefined ? null : sessions.length === 0 ? (
         <div className="py-12 text-center text-muted">
+          <div className="mb-3 flex justify-center">
+            <MoodBear mood="calm" size={140} />
+          </div>
           <p>No workouts yet.</p>
           <p className="text-sm">Finished workouts show up here.</p>
           <div className="mt-4">
@@ -32,8 +36,11 @@ export default function HistoryPage() {
         </div>
       ) : (
         <>
-          <div className="mb-5 grid grid-cols-2 gap-3">
-            <StatTile value={sessions.length} label="workouts" />
+          <div className="mb-5 flex items-center gap-3">
+            <MoodBear mood="happy" size={56} />
+            <div className="flex-1">
+              <StatTile value={sessions.length} label="workouts" />
+            </div>
           </div>
 
           {summaries.length > 0 && (
