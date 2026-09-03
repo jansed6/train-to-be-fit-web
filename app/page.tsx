@@ -50,7 +50,7 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => signOut()}
-          className="text-sm text-muted hover:text-content"
+          className="text-sm text-muted hover:text-content md:hidden"
         >
           Sign out
         </button>

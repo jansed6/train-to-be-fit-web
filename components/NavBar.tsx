@@ -9,7 +9,7 @@ export function NavBar() {
   const historyActive = path.startsWith("/history");
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 flex justify-center gap-2 border-t border-hairline bg-surface px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5">
+    <nav className="fixed inset-x-0 bottom-0 z-10 flex justify-center gap-2 border-t border-hairline bg-surface px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5 md:hidden">
       <NavLink href="/" active={!historyActive}>
         Home
       </NavLink>

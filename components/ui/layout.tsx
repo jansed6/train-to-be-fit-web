@@ -4,7 +4,9 @@ import Link from "next/link";
 /** Page container: centered, mobile-first, with room for the bottom nav. */
 export function Container({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto max-w-[640px] px-4 pb-24 pt-5">{children}</main>
+    <main className="mx-auto max-w-[640px] px-4 pb-24 pt-5 md:max-w-[720px] md:pb-16 md:pt-8">
+      {children}
+    </main>
   );
 }
 

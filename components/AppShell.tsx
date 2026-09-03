@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { SignIn } from "./SignIn";
 import { NavBar } from "./NavBar";
+import { TopNav } from "./TopNav";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -24,6 +25,7 @@ function Shell({ children }: { children: ReactNode }) {
   }
   return (
     <>
+      <TopNav />
       {children}
       <NavBar />
     </>
