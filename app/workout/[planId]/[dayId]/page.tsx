@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { WorkoutTimer } from "@/components/workout/WorkoutTimer";
 import { ExerciseCard } from "@/components/workout/ExerciseCard";
 import { RestBar } from "@/components/workout/RestBar";
+import { ExercisePicker } from "@/components/plan/ExercisePicker";
 import { useActiveWorkout } from "@/lib/useActiveWorkout";
 
 const DEFAULT_REST_SECONDS = 90;
@@ -21,6 +22,7 @@ export default function WorkoutPage({
   const wk = useActiveWorkout(params.planId, params.dayId);
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
   const [finishing, setFinishing] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
   const finishingRef = useRef(false);
 
   if (wk.notFound) {
@@ -49,6 +51,15 @@ export default function WorkoutPage({
     wk.confirm(exIdx, rowIdx);
     // Start the rest countdown when a set is newly marked done.
     if (!wasDone) setRestEndsAt(Date.now() + DEFAULT_REST_SECONDS * 1000);
+  }
+
+  function removeExercise(exIdx: number) {
+    const ex = exercises[exIdx];
+    // Only ask when logged sets would be lost.
+    if (ex?.rows.some((r) => r.done) && !confirm(`Remove "${ex.name}" and its logged sets?`)) {
+      return;
+    }
+    wk.removeExercise(exIdx);
   }
 
   async function finish() {
@@ -81,8 +92,17 @@ export default function WorkoutPage({
               onChangeRow={(rowIdx, patch) => wk.updateRow(i, rowIdx, patch)}
               onConfirmRow={(rowIdx) => confirmSet(i, rowIdx)}
               onAddSet={() => wk.addSet(i)}
+              onMoveUp={i > 0 ? () => wk.moveExercise(i, -1) : undefined}
+              onMoveDown={
+                i < exercises.length - 1 ? () => wk.moveExercise(i, 1) : undefined
+              }
+              onRemove={() => removeExercise(i)}
             />
           ))}
+
+          <Button variant="neutral" block onClick={() => setShowPicker(true)}>
+            + Add exercise
+          </Button>
 
           <Button variant="primary" block disabled={finishing} onClick={finish}>
             {finishing ? "Saving…" : "✓ Finish workout"}
@@ -96,6 +116,13 @@ export default function WorkoutPage({
           onAdd30={() => setRestEndsAt((t) => (t ?? Date.now()) + 30000)}
           onSkip={() => setRestEndsAt(null)}
           onDone={() => setRestEndsAt(null)}
+        />
+      )}
+
+      {showPicker && (
+        <ExercisePicker
+          onAdd={wk.addExercises}
+          onClose={() => setShowPicker(false)}
         />
       )}
     </>

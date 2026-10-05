@@ -3,7 +3,7 @@ import { inputClass } from "@/components/ui/Input";
 import { formatWeight } from "@/lib/format";
 import { parseWeight, type SetRow as SetRowData } from "@/lib/useActiveWorkout";
 
-const WEIGHT_STEP = 2.5;
+const WEIGHT_STEP = 1;
 const REPS_STEP = 1;
 
 export function SetRow({

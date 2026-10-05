@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getPlan, getAllSessions, saveSession, uid } from "./repo";
 import { formatWeight } from "./format";
 import { normalize } from "./exerciseCatalog";
-import type { WorkoutSession, SessionExercise, LoggedSet } from "./types";
+import type { Exercise, WorkoutSession, SessionExercise, LoggedSet } from "./types";
 
 export interface SetRow {
   weight: string;
@@ -48,13 +48,29 @@ function firstInt(text: string): string {
   return m ? m[0] : "";
 }
 
-function emptyRows(count: number): SetRow[] {
-  return Array.from({ length: Math.max(count, 1) }, () => ({
-    weight: "",
-    reps: "",
-    done: false,
-    prefilled: false,
-  }));
+type WeightsByKey = Map<string, number[]>;
+
+/** Rows for a fresh exercise: reps from the plan target, weights (greyed) from
+ *  the last session that logged the movement. */
+function prefilledRows(
+  ex: Pick<Exercise, "name" | "catalogId" | "sets" | "reps">,
+  weightsByKey: WeightsByKey,
+): SetRow[] {
+  const reps = firstInt(ex.reps);
+  let weights: number[] | undefined;
+  for (const key of keysFor(ex.catalogId, ex.name)) {
+    const found = weightsByKey.get(key);
+    if (found) {
+      weights = found;
+      break;
+    }
+  }
+  return Array.from({ length: Math.max(ex.sets, 1) }, (_row, i) => {
+    const weight = weights
+      ? formatWeight(weights[i] ?? weights[weights.length - 1])
+      : "";
+    return { weight, reps, done: false, prefilled: weight !== "" };
+  });
 }
 
 /** Loads a plan day. Reps come from the plan's target; weights are pre-filled
@@ -65,6 +81,8 @@ export function useActiveWorkout(planId: string, dayId: string) {
   const [notFound, setNotFound] = useState(false);
   const [current, setCurrent] = useState(0);
   const [startedAt] = useState(() => Date.now());
+  // Kept so exercises added mid-workout get the same weight prefill.
+  const weightsRef = useRef<WeightsByKey>(new Map());
 
   useEffect(() => {
     let cancelled = false;
@@ -77,18 +95,9 @@ export function useActiveWorkout(planId: string, dayId: string) {
         return;
       }
 
-      const built: ActiveExercise[] = day.exercises.map((ex) => ({
-        id: ex.id,
-        name: ex.name,
-        catalogId: ex.catalogId,
-        targetSets: ex.sets,
-        targetReps: ex.reps,
-        rows: emptyRows(ex.sets),
-      }));
-
       // Weights (per set) from the most recent session that logged each movement.
       const sessions = await getAllSessions();
-      const weightsByKey = new Map<string, number[]>();
+      const weightsByKey: WeightsByKey = new Map();
       for (const s of sessions) {
         for (const se of s.exercises) {
           if (se.sets.length === 0) continue;
@@ -98,24 +107,16 @@ export function useActiveWorkout(planId: string, dayId: string) {
           }
         }
       }
+      weightsRef.current = weightsByKey;
 
-      for (const ex of built) {
-        const reps = firstInt(ex.targetReps); // reps come from the plan
-        let weights: number[] | undefined;
-        for (const key of keysFor(ex.catalogId, ex.name)) {
-          const found = weightsByKey.get(key);
-          if (found) {
-            weights = found;
-            break;
-          }
-        }
-        ex.rows = ex.rows.map((_row, i) => {
-          const weight = weights
-            ? formatWeight(weights[i] ?? weights[weights.length - 1])
-            : "";
-          return { weight, reps, done: false, prefilled: weight !== "" };
-        });
-      }
+      const built: ActiveExercise[] = day.exercises.map((ex) => ({
+        id: ex.id,
+        name: ex.name,
+        catalogId: ex.catalogId,
+        targetSets: ex.sets,
+        targetReps: ex.reps,
+        rows: prefilledRows(ex, weightsByKey),
+      }));
 
       if (!cancelled) {
         setPlanDayName(day.name);
@@ -168,6 +169,36 @@ export function useActiveWorkout(planId: string, dayId: string) {
     );
   }
 
+  /** Swaps an exercise with its neighbour (-1 = up, +1 = down). */
+  function moveExercise(exIdx: number, dir: -1 | 1) {
+    setExercises((exs) => {
+      const to = exIdx + dir;
+      if (!exs || to < 0 || to >= exs.length) return exs;
+      const next = [...exs];
+      [next[exIdx], next[to]] = [next[to], next[exIdx]];
+      return next;
+    });
+  }
+
+  function removeExercise(exIdx: number) {
+    setExercises((exs) => (exs ? exs.filter((_ex, i) => i !== exIdx) : exs));
+  }
+
+  /** Appends exercises to this workout only — the plan itself is unchanged. */
+  function addExercises(
+    items: Pick<Exercise, "name" | "catalogId" | "sets" | "reps">[],
+  ) {
+    const added: ActiveExercise[] = items.map((it) => ({
+      id: uid(),
+      name: it.name,
+      catalogId: it.catalogId,
+      targetSets: it.sets,
+      targetReps: it.reps,
+      rows: prefilledRows(it, weightsRef.current),
+    }));
+    setExercises((exs) => (exs ? [...exs, ...added] : exs));
+  }
+
   function confirm(exIdx: number, rowIdx: number) {
     const row = exercises?.[exIdx]?.rows[rowIdx];
     if (!row || !isValidRow(row)) return;
@@ -210,6 +241,9 @@ export function useActiveWorkout(planId: string, dayId: string) {
     startedAt,
     updateRow,
     addSet,
+    moveExercise,
+    removeExercise,
+    addExercises,
     confirm,
     finish,
   };
