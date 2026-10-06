@@ -1,15 +1,17 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/ui/layout";
 import { Button } from "@/components/ui/Button";
 import { WorkoutTimer } from "@/components/workout/WorkoutTimer";
-import { ExerciseCard } from "@/components/workout/ExerciseCard";
+import { ExerciseCard, ExerciseCardCompact } from "@/components/workout/ExerciseCard";
+import { ExerciseList } from "@/components/workout/ExerciseList";
+import { UndoToast } from "@/components/workout/UndoToast";
 import { RestBar } from "@/components/workout/RestBar";
 import { ExercisePicker } from "@/components/plan/ExercisePicker";
-import { useActiveWorkout } from "@/lib/useActiveWorkout";
+import { useActiveWorkout, type ActiveExercise } from "@/lib/useActiveWorkout";
 
 const DEFAULT_REST_SECONDS = 90;
 
@@ -23,7 +25,11 @@ export default function WorkoutPage({
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
   const [finishing, setFinishing] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
+  const [removed, setRemoved] = useState<{ exercise: ActiveExercise; index: number } | null>(
+    null,
+  );
   const finishingRef = useRef(false);
+  const closeToast = useCallback(() => setRemoved(null), []);
 
   if (wk.notFound) {
     return (
@@ -54,12 +60,15 @@ export default function WorkoutPage({
   }
 
   function removeExercise(exIdx: number) {
-    const ex = exercises[exIdx];
-    // Only ask when logged sets would be lost.
-    if (ex?.rows.some((r) => r.done) && !confirm(`Remove "${ex.name}" and its logged sets?`)) {
-      return;
-    }
+    const exercise = exercises[exIdx];
+    if (!exercise) return;
+    setRemoved({ exercise, index: exIdx });
     wk.removeExercise(exIdx);
+  }
+
+  function undoRemove() {
+    if (removed) wk.restoreExercise(removed.exercise, removed.index);
+    setRemoved(null);
   }
 
   async function finish() {
@@ -85,20 +94,28 @@ export default function WorkoutPage({
 
       <Container>
         <div className="flex flex-col gap-4">
-          {exercises.map((ex, i) => (
-            <ExerciseCard
-              key={ex.id}
-              exercise={ex}
-              onChangeRow={(rowIdx, patch) => wk.updateRow(i, rowIdx, patch)}
-              onConfirmRow={(rowIdx) => confirmSet(i, rowIdx)}
-              onAddSet={() => wk.addSet(i)}
-              onMoveUp={i > 0 ? () => wk.moveExercise(i, -1) : undefined}
-              onMoveDown={
-                i < exercises.length - 1 ? () => wk.moveExercise(i, 1) : undefined
-              }
-              onRemove={() => removeExercise(i)}
-            />
-          ))}
+          <ExerciseList
+            items={exercises}
+            renderCard={(ex, i) => (
+              <ExerciseCard
+                exercise={ex}
+                onChangeRow={(rowIdx, patch) => wk.updateRow(i, rowIdx, patch)}
+                onConfirmRow={(rowIdx) => confirmSet(i, rowIdx)}
+                onAddSet={() => wk.addSet(i)}
+              />
+            )}
+            renderCompact={(ex, lifted) => (
+              <ExerciseCardCompact exercise={ex} lifted={lifted} />
+            )}
+            onMove={wk.moveExercise}
+            onRemove={removeExercise}
+          />
+
+          {exercises.length > 0 && (
+            <p className="-mt-1 text-center text-xs text-muted">
+              Hold a card to reorder · swipe left to remove
+            </p>
+          )}
 
           <Button variant="neutral" block onClick={() => setShowPicker(true)}>
             + Add exercise
@@ -116,6 +133,15 @@ export default function WorkoutPage({
           onAdd30={() => setRestEndsAt((t) => (t ?? Date.now()) + 30000)}
           onSkip={() => setRestEndsAt(null)}
           onDone={() => setRestEndsAt(null)}
+        />
+      )}
+
+      {removed && (
+        <UndoToast
+          key={removed.exercise.id}
+          message={`Removed ${removed.exercise.name}`}
+          onUndo={undoRemove}
+          onClose={closeToast}
         />
       )}
 

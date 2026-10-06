@@ -169,19 +169,29 @@ export function useActiveWorkout(planId: string, dayId: string) {
     );
   }
 
-  /** Swaps an exercise with its neighbour (-1 = up, +1 = down). */
-  function moveExercise(exIdx: number, dir: -1 | 1) {
+  /** Moves the exercise at `from` so it ends up at index `to`. */
+  function moveExercise(from: number, to: number) {
     setExercises((exs) => {
-      const to = exIdx + dir;
-      if (!exs || to < 0 || to >= exs.length) return exs;
+      if (!exs || from === to || to < 0 || to >= exs.length) return exs;
       const next = [...exs];
-      [next[exIdx], next[to]] = [next[to], next[exIdx]];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
       return next;
     });
   }
 
   function removeExercise(exIdx: number) {
     setExercises((exs) => (exs ? exs.filter((_ex, i) => i !== exIdx) : exs));
+  }
+
+  /** Puts a removed exercise back (undo), logged sets and all. */
+  function restoreExercise(exercise: ActiveExercise, index: number) {
+    setExercises((exs) => {
+      if (!exs) return exs;
+      const next = [...exs];
+      next.splice(Math.min(index, next.length), 0, exercise);
+      return next;
+    });
   }
 
   /** Appends exercises to this workout only — the plan itself is unchanged. */
@@ -243,6 +253,7 @@ export function useActiveWorkout(planId: string, dayId: string) {
     addSet,
     moveExercise,
     removeExercise,
+    restoreExercise,
     addExercises,
     confirm,
     finish,

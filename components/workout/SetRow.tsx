@@ -37,7 +37,7 @@ export function SetRow({
 
       <Stepper onMinus={() => stepWeight(-WEIGHT_STEP)} onPlus={() => stepWeight(WEIGHT_STEP)}>
         <input
-          className={cn(inputClass, "px-1 text-center", row.prefilled && "text-muted")}
+          className={cn(inputClass, "select-text px-1 text-center", row.prefilled && "text-muted")}
           inputMode="decimal"
           placeholder="0"
           value={row.weight}
@@ -49,7 +49,7 @@ export function SetRow({
 
       <Stepper onMinus={() => stepReps(-REPS_STEP)} onPlus={() => stepReps(REPS_STEP)}>
         <input
-          className={cn(inputClass, "px-1 text-center")}
+          className={cn(inputClass, "select-text px-1 text-center")}
           inputMode="numeric"
           placeholder="0"
           value={row.reps}
