@@ -50,8 +50,9 @@ export function ExercisePicker({
       .filter((e) => selected[e.id])
       .map<PickedExercise>((e) => ({
         name: e.name,
-        sets: 3,
-        reps: "10",
+        // stretches are held, so the "reps" are seconds
+        sets: e.group === "Stretching" ? 2 : 3,
+        reps: e.group === "Stretching" ? "30 s" : "10",
         catalogId: e.id,
       }));
     if (items.length) onAdd(items);
@@ -138,9 +139,10 @@ function ExerciseOption({
           : "border-hairline bg-surface-2",
       )}
     >
-      <span>
+      <span className="min-w-0">
         <span className="block font-medium">{exercise.name}</span>
-        <span className="block text-xs text-muted">
+        <span className="block text-sm text-muted">{exercise.sk}</span>
+        <span className="block text-xs text-muted opacity-80">
           {exercise.muscles.join(", ")}
         </span>
       </span>

@@ -11,8 +11,7 @@ import { ExerciseList } from "@/components/workout/ExerciseList";
 import { UndoToast } from "@/components/workout/UndoToast";
 import { RestBar } from "@/components/workout/RestBar";
 import { ExercisePicker } from "@/components/plan/ExercisePicker";
-import { MuscleSheet } from "@/components/muscles/MuscleSheet";
-import { musclesFor, type ExerciseMuscles } from "@/lib/muscles";
+import { ExerciseSheet } from "@/components/muscles/ExerciseSheet";
 import { useActiveWorkout, type ActiveExercise } from "@/lib/useActiveWorkout";
 
 const DEFAULT_REST_SECONDS = 90;
@@ -27,13 +26,13 @@ export default function WorkoutPage({
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
   const [finishing, setFinishing] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
-  const [muscleSheet, setMuscleSheet] = useState<{ title: string; muscles: ExerciseMuscles } | null>(null);
+  const [details, setDetails] = useState<{ name: string; catalogId?: string } | null>(null);
   const [removed, setRemoved] = useState<{ exercise: ActiveExercise; index: number } | null>(
     null,
   );
   const finishingRef = useRef(false);
   const closeToast = useCallback(() => setRemoved(null), []);
-  const closeMuscles = useCallback(() => setMuscleSheet(null), []);
+  const closeDetails = useCallback(() => setDetails(null), []);
 
   if (wk.notFound) {
     return (
@@ -106,10 +105,7 @@ export default function WorkoutPage({
                 onChangeRow={(rowIdx, patch) => wk.updateRow(i, rowIdx, patch)}
                 onConfirmRow={(rowIdx) => confirmSet(i, rowIdx)}
                 onAddSet={() => wk.addSet(i)}
-                onShowMuscles={() => {
-                  const muscles = musclesFor(ex.catalogId, ex.name);
-                  if (muscles) setMuscleSheet({ title: ex.name, muscles });
-                }}
+                onShowDetails={() => setDetails({ name: ex.name, catalogId: ex.catalogId })}
               />
             )}
             renderCompact={(ex, lifted) => (
@@ -153,8 +149,8 @@ export default function WorkoutPage({
         />
       )}
 
-      {muscleSheet && (
-        <MuscleSheet title={muscleSheet.title} muscles={muscleSheet.muscles} onClose={closeMuscles} />
+      {details && (
+        <ExerciseSheet name={details.name} catalogId={details.catalogId} onClose={closeDetails} />
       )}
 
       {showPicker && (

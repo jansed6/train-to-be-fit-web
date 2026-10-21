@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getPlan, getAllSessions, saveSession, uid } from "./repo";
 import { formatWeight } from "./format";
-import { normalize } from "./exerciseCatalog";
+import { findCatalogExercise, normalize } from "./exerciseCatalog";
 import type { Exercise, WorkoutSession, SessionExercise, LoggedSet } from "./types";
 
 export interface SetRow {
@@ -65,10 +65,15 @@ function prefilledRows(
       break;
     }
   }
+  // Bodyweight moves and stretches start at 0 kg, so a set can be ticked without typing a weight.
+  const catalog = findCatalogExercise(ex.catalogId, ex.name);
+  const noLoad = !!catalog && (catalog.group === "Stretching" || /^bodyweight|pull-up bar|parallel bars/.test(catalog.equipment));
   return Array.from({ length: Math.max(ex.sets, 1) }, (_row, i) => {
     const weight = weights
       ? formatWeight(weights[i] ?? weights[weights.length - 1])
-      : "";
+      : noLoad
+        ? "0"
+        : "";
     return { weight, reps, done: false, prefilled: weight !== "" };
   });
 }

@@ -25,7 +25,7 @@ export function ExerciseRow({
       />
       {catalog && (
         <div className="mb-2 mt-1 text-xs text-muted">
-          {catalog.muscles.join(", ")}
+          {catalog.sk} · {catalog.muscles.join(", ")}
         </div>
       )}
       <div className="flex items-end gap-2">

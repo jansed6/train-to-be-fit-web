@@ -41,5 +41,7 @@ per-user in Supabase Postgres with Row-Level Security.
 
 ## Credits
 
+- Exercise photos and how-to steps: [free-exercise-db](https://github.com/yuhonas/free-exercise-db)
+  (Unlicense / public domain) — `public/exercises/`, `lib/exerciseSteps.ts`.
 - Body muscle map (SVG paths): [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter)
   by Hicham Elabbassi, MIT License — see `lib/bodyMapData.ts`.
