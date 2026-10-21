@@ -20,7 +20,8 @@ export function ExerciseSheet({
   const [type, setType] = useBodyType();
   const entry = findCatalogExercise(catalogId, name);
   const levels = useMemo(() => (entry ? levelsFor(entry) : {}), [entry]);
-  const [steps, setSteps] = useState<string[] | null>(null);
+  const [steps, setSteps] = useState<{ sk: string[]; en: string[] } | null>(null);
+  const [lang, setLang] = useState<"sk" | "en">("sk");
   const [frame, setFrame] = useState(0);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export function ExerciseSheet({
   useEffect(() => {
     if (!entry) return;
     let live = true;
-    import("@/lib/exerciseSteps").then((m) => live && setSteps(m.EXERCISE_STEPS[entry.id] ?? []));
+    import("@/lib/exerciseSteps").then((m) => live && setSteps(m.EXERCISE_STEPS[entry.id] ?? null));
     return () => {
       live = false;
     };
@@ -118,11 +119,33 @@ export function ExerciseSheet({
             <p className="text-sm text-muted">No details for this custom exercise yet.</p>
           )}
 
-          {steps && steps.length > 0 && (
+          {steps && steps[lang].length > 0 && (
             <section>
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">How to</div>
-              <ol className="flex list-decimal flex-col gap-1.5 pl-5 text-sm leading-relaxed marker:font-bold marker:text-accent">
-                {steps.map((s, i) => (
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted">How to</span>
+                <div className="inline-flex rounded-full bg-surface-2 p-0.5" role="group" aria-label="Language">
+                  {(["sk", "en"] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      aria-pressed={lang === l}
+                      onClick={() => setLang(l)}
+                      className={
+                        lang === l
+                          ? "rounded-full bg-surface px-2.5 py-0.5 text-xs font-semibold text-content shadow-card"
+                          : "rounded-full px-2.5 py-0.5 text-xs font-semibold text-muted"
+                      }
+                    >
+                      {l.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <ol
+                lang={lang}
+                className="flex list-decimal flex-col gap-1.5 pl-5 text-sm leading-relaxed marker:font-bold marker:text-accent"
+              >
+                {steps[lang].map((s, i) => (
                   <li key={i}>{s}</li>
                 ))}
               </ol>
