@@ -1,8 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import { Container, PageTitle, BackLink } from "@/components/ui/layout";
 import { Card } from "@/components/ui/Card";
 import { useSession } from "@/lib/hooks";
+import { BodyMapPair } from "@/components/muscles/BodyMap";
+import { BodyTypeToggle } from "@/components/muscles/BodyTypeToggle";
+import { useBodyType } from "@/lib/useBodyType";
+import { MUSCLES, sessionLevels, type MuscleKey } from "@/lib/muscles";
 import {
   formatDate,
   formatDuration,
@@ -25,6 +30,12 @@ export default function SessionDetailPage({
   params: { id: string };
 }) {
   const session = useSession(params.id);
+  const [bodyType, setBodyType] = useBodyType();
+  const levels = useMemo(() => (session ? sessionLevels(session) : {}), [session]);
+  // busiest muscles first, for the caption under the map
+  const worked = (Object.entries(levels) as [MuscleKey, number][])
+    .sort((a, b) => b[1] - a[1])
+    .map(([m]) => MUSCLES[m].label);
 
   return (
     <Container>
@@ -49,6 +60,22 @@ export default function SessionDetailPage({
               value={`${Math.round(totalVolume(session))} kg`}
             />
           </Card>
+
+          {worked.length > 0 && (
+            <Card className="mb-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <span className="font-bold">Muscles worked</span>
+                <BodyTypeToggle value={bodyType} onChange={setBodyType} />
+              </div>
+              <div className="mx-auto max-w-[320px]">
+                <BodyMapPair type={bodyType} levels={levels} size="lg" captions />
+              </div>
+              <p className="mt-3 text-sm text-muted">
+                {worked.join(" · ")}
+              </p>
+              <p className="mt-1 text-xs text-muted">Deeper red = more sets.</p>
+            </Card>
+          )}
 
           <div className="flex flex-col gap-4">
             {session.exercises.map((ex) => (

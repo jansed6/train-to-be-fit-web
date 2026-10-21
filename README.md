@@ -38,3 +38,8 @@ Plans built by picking from an exercise catalogue (or custom), a scrollable
 workout logger with ± steppers and a rest timer, weight prefill from the last
 session, workout history, and per-exercise progress charts. Data is stored
 per-user in Supabase Postgres with Row-Level Security.
+
+## Credits
+
+- Body muscle map (SVG paths): [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter)
+  by Hicham Elabbassi, MIT License — see `lib/bodyMapData.ts`.

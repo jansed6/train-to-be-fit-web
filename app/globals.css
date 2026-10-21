@@ -16,6 +16,12 @@
   --border: rgba(0, 0, 0, 0.07);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -14px rgba(0, 0, 0, 0.14);
   --glow: rgba(255, 122, 27, 0.1);
+  /* body map: worked muscles in red on a grey figure */
+  --muscle: #e0322b;
+  --map-gap: #a7a7b0;
+  --map-body: #d9d9df;
+  --map-skin: #e6e6ea;
+  --map-hair: #7d7d87;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -28,6 +34,11 @@
     --border: rgba(255, 255, 255, 0.08);
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px -18px rgba(0, 0, 0, 0.7);
     --glow: rgba(255, 122, 27, 0.18);
+    --muscle: #ff4b3e;
+    --map-gap: #1f1f25;
+    --map-body: #45454f;
+    --map-skin: #52525c;
+    --map-hair: #2b2b31;
   }
 }
 

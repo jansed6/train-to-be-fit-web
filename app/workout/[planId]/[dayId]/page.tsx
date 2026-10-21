@@ -11,6 +11,8 @@ import { ExerciseList } from "@/components/workout/ExerciseList";
 import { UndoToast } from "@/components/workout/UndoToast";
 import { RestBar } from "@/components/workout/RestBar";
 import { ExercisePicker } from "@/components/plan/ExercisePicker";
+import { MuscleSheet } from "@/components/muscles/MuscleSheet";
+import { musclesFor, type ExerciseMuscles } from "@/lib/muscles";
 import { useActiveWorkout, type ActiveExercise } from "@/lib/useActiveWorkout";
 
 const DEFAULT_REST_SECONDS = 90;
@@ -25,11 +27,13 @@ export default function WorkoutPage({
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
   const [finishing, setFinishing] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
+  const [muscleSheet, setMuscleSheet] = useState<{ title: string; muscles: ExerciseMuscles } | null>(null);
   const [removed, setRemoved] = useState<{ exercise: ActiveExercise; index: number } | null>(
     null,
   );
   const finishingRef = useRef(false);
   const closeToast = useCallback(() => setRemoved(null), []);
+  const closeMuscles = useCallback(() => setMuscleSheet(null), []);
 
   if (wk.notFound) {
     return (
@@ -102,6 +106,10 @@ export default function WorkoutPage({
                 onChangeRow={(rowIdx, patch) => wk.updateRow(i, rowIdx, patch)}
                 onConfirmRow={(rowIdx) => confirmSet(i, rowIdx)}
                 onAddSet={() => wk.addSet(i)}
+                onShowMuscles={() => {
+                  const muscles = musclesFor(ex.catalogId, ex.name);
+                  if (muscles) setMuscleSheet({ title: ex.name, muscles });
+                }}
               />
             )}
             renderCompact={(ex, lifted) => (
@@ -143,6 +151,10 @@ export default function WorkoutPage({
           onUndo={undoRemove}
           onClose={closeToast}
         />
+      )}
+
+      {muscleSheet && (
+        <MuscleSheet title={muscleSheet.title} muscles={muscleSheet.muscles} onClose={closeMuscles} />
       )}
 
       {showPicker && (
