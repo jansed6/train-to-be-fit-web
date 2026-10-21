@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { CloseButton } from "@/components/ui/CloseButton";
 import { inputClass } from "@/components/ui/Input";
 import { cn } from "@/lib/cn";
 import {
@@ -71,9 +72,7 @@ export function ExercisePicker({
         <div className="border-b border-hairline p-4">
           <div className="mb-3 flex items-center justify-between">
             <strong className="text-lg">Add exercises</strong>
-            <button onClick={onClose} aria-label="Close" className="text-muted">
-              ✕
-            </button>
+            <CloseButton onClick={onClose} />
           </div>
           <input
             className={inputClass}

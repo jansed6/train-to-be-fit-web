@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BodyMapPair } from "./BodyMap";
 import { BodyTypeToggle } from "./BodyTypeToggle";
+import { CloseButton } from "@/components/ui/CloseButton";
 import { useBodyType } from "@/lib/useBodyType";
 import { findCatalogExercise } from "@/lib/exerciseCatalog";
 import { MUSCLES, levelsFor } from "@/lib/muscles";
@@ -65,9 +66,7 @@ export function ExerciseSheet({
               <span className="block text-sm text-muted">{entry.sk}</span>
             )}
           </div>
-          <button onClick={onClose} aria-label="Close" className="text-muted">
-            ✕
-          </button>
+          <CloseButton onClick={onClose} className="-mt-1.5" />
         </div>
 
         <div className="flex flex-col gap-4 overflow-y-auto p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
