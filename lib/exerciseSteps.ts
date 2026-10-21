@@ -364,7 +364,7 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "Z bezpečnostných dôvodov je najlepšie cvičiť v stojane na drepy. Najprv nastav činku v stojane tesne pod úroveň ramien. Keď máš správnu výšku a naloženú činku, podíď pod ňu a polož si ju na zadnú časť ramien (kúsok pod krk).",
       "Chyť činku oboma rukami po stranách a zdvihni ju zo stojana tak, že zatlačíš nohami a súčasne vystrieš trup.",
       "Odstúp od stojana a postav sa do stredného postoja na šírku ramien so špičkami mierne vytočenými von. Hlavu drž stále hore a chrbát rovný. Toto je východisková poloha. (Poznámka: Tu popisujeme stredný postoj, ktorý rozvíja nohy celkovo; môžeš si však zvoliť ktorýkoľvek z troch postojov – úzky, stredný alebo široký.)",
-      "Pomaly spúšťaj činku ohýbaním v kolenách a v bokoch, pričom držíš vzpriamený postoj a hlavu hore. Pokračuj nadol, kým uhol medzi stehnom a lýtkom nie je o niečo menší ako 90°. Pri tejto časti pohybu sa nadýchni. Tip: Ak cvičíš správne, predná strana kolien je so špičkami nôh v jednej pomyselnej zvislej línii. Ak kolená túto líniu presahujú (sú pred špičkami), zbytočne zaťažuješ kolená a cvik robíš nesprávne.",
+      "Pomaly spúšťaj činku ohýbaním v kolenách a v bokoch, pričom držíš vzpriamený postoj a hlavu hore. Pokračuj nadol, kým uhol medzi stehnom a lýtkom nie je o niečo menší ako 90°. Pri tejto časti pohybu sa nadýchni. Tip: Kolená veď v smere špičiek. Nevadí, ak sa mierne dostanú pred špičky, pokiaľ päty ostávajú celé na zemi a kolená sa nestáčajú dnu.",
       "S výdychom začni činku dvíhať – tlač pätami do zeme, vystri nohy a vráť sa do východiskovej polohy.",
       "Opakuj podľa plánovaného počtu opakovaní."
     ],
@@ -372,7 +372,7 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "This exercise is best performed inside a squat rack for safety purposes. To begin, first set the bar on a rack to just below shoulder level. Once the correct height is chosen and the bar is loaded, step under the bar and place the back of your shoulders (slightly below the neck) across it.",
       "Hold on to the bar using both arms at each side and lift it off the rack by first pushing with your legs and at the same time straightening your torso.",
       "Step away from the rack and position your legs using a shoulder width medium stance with the toes slightly pointed out. Keep your head up at all times and also maintain a straight back. This will be your starting position. (Note: For the purposes of this discussion we will use the medium stance described above which targets overall development; however you can choose any of the three stances discussed in the foot stances section).",
-      "Begin to slowly lower the bar by bending the knees and hips as you maintain a straight posture with the head up. Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees. Inhale as you perform this portion of the movement. Tip: If you performed the exercise correctly, the front of the knees should make an imaginary straight line with the toes that is perpendicular to the front. If your knees are past that imaginary line (if they are past your toes) then you are placing undue stress on the knee and the exercise has been performed incorrectly.",
+      "Begin to slowly lower the bar by bending the knees and hips as you maintain a straight posture with the head up. Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees. Inhale as you perform this portion of the movement. Tip: Keep your knees tracking in the direction of your toes. It is fine for the knees to travel slightly past the toes, as long as your heels stay flat on the floor and your knees don't cave inward.",
       "Begin to raise the bar as you exhale by pushing the floor with the heel of your foot as you straighten the legs again and go back to the starting position.",
       "Repeat for the recommended amount of repetitions."
     ]
@@ -382,7 +382,7 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "Z bezpečnostných dôvodov je najlepšie cvičiť v stojane na drepy. Najprv nastav činku v stojane do výšky, ktorá ti najlepšie vyhovuje. Keď máš správnu výšku a naloženú činku, podsuň ruky pod činku, lakte drž vysoko a nadlaktia mierne nad vodorovnou polohou. Polož si činku na predné delty a ruky prekríž, aby si činku držal a mal ju plne pod kontrolou.",
       "Zdvihni činku zo stojana tak, že zatlačíš nohami a súčasne vystrieš trup.",
       "Odstúp od stojana a postav sa do stredného postoja na šírku ramien so špičkami mierne vytočenými von. Hlavu drž stále hore, pretože pohľad nadol ťa vyvedie z rovnováhy, a chrbát drž rovný. Toto je východisková poloha. (Poznámka: Tu popisujeme stredný postoj, ktorý rozvíja nohy celkovo; môžeš si však zvoliť ktorýkoľvek z troch postojov – úzky, stredný alebo široký.)",
-      "Pomaly spúšťaj činku pokrčením kolien, pričom držíš vzpriamený postoj a hlavu hore. Pokračuj nadol, kým uhol medzi stehnom a lýtkom nie je o niečo menší ako 90° (stehná sú pod vodorovnou polohou). Pri tejto časti pohybu sa nadýchni. Tip: Ak cvičíš správne, predná strana kolien je so špičkami nôh v jednej pomyselnej zvislej línii. Ak kolená túto líniu presahujú (sú pred špičkami), zbytočne zaťažuješ kolená a cvik robíš nesprávne.",
+      "Pomaly spúšťaj činku pokrčením kolien, pričom držíš vzpriamený postoj a hlavu hore. Pokračuj nadol, kým uhol medzi stehnom a lýtkom nie je o niečo menší ako 90° (stehná sú pod vodorovnou polohou). Pri tejto časti pohybu sa nadýchni. Tip: Kolená veď v smere špičiek. Nevadí, ak sa mierne dostanú pred špičky, pokiaľ päty ostávajú celé na zemi a kolená sa nestáčajú dnu.",
       "S výdychom začni činku dvíhať – tlač do zeme hlavne stredom chodidla, vystri nohy a vráť sa do východiskovej polohy.",
       "Opakuj podľa plánovaného počtu opakovaní."
     ],
@@ -390,7 +390,7 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "This exercise is best performed inside a squat rack for safety purposes. To begin, first set the bar on a rack that best matches your height. Once the correct height is chosen and the bar is loaded, bring your arms up under the bar while keeping the elbows high and the upper arm slightly above parallel to the floor. Rest the bar on top of the deltoids and cross your arms while grasping the bar for total control.",
       "Lift the bar off the rack by first pushing with your legs and at the same time straightening your torso.",
       "Step away from the rack and position your legs using a shoulder width medium stance with the toes slightly pointed out. Keep your head up at all times as looking down will get you off balance and also maintain a straight back. This will be your starting position. (Note: For the purposes of this discussion we will use the medium stance described above which targets overall development; however you can choose any of the three stances described in the foot positioning section).",
-      "Begin to slowly lower the bar by bending the knees as you maintain a straight posture with the head up. Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees (which is the point in which the upper legs are below parallel to the floor). Inhale as you perform this portion of the movement. Tip: If you performed the exercise correctly, the front of the knees should make an imaginary straight line with the toes that is perpendicular to the front. If your knees are past that imaginary line (if they are past your toes) then you are placing undue stress on the knee and the exercise has been performed incorrectly.",
+      "Begin to slowly lower the bar by bending the knees as you maintain a straight posture with the head up. Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees (which is the point in which the upper legs are below parallel to the floor). Inhale as you perform this portion of the movement. Tip: Keep your knees tracking in the direction of your toes. It is fine for the knees to travel slightly past the toes, as long as your heels stay flat on the floor and your knees don't cave inward.",
       "Begin to raise the bar as you exhale by pushing the floor mainly with the middle of your foot as you straighten the legs again and go back to the starting position.",
       "Repeat for the recommended amount of repetitions."
     ]
@@ -440,26 +440,26 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
   "lunge": {
     "sk": [
       "Postav sa so vzpriameným trupom a s jednoručkami v rukách pri bokoch. Toto je východisková poloha.",
-      "Urob pravou nohou krok dopredu, asi 60 cm od nohy, ktorá zostáva vzadu na mieste, a spusti telo nadol, pričom trup držíš vzpriamený a udržuješ rovnováhu. Pri spúšťaní sa nadýchni. Poznámka: Tak ako pri iných cvikoch, nedovoľ, aby koleno pri spúšťaní prešlo pred špičky, pretože to zbytočne zaťažuje kolenný kĺb. Predkolenie prednej nohy drž kolmo na zem.",
+      "Urob pravou nohou krok dopredu, asi 60 cm od nohy, ktorá zostáva vzadu na mieste, a spusti telo nadol, pričom trup držíš vzpriamený a udržuješ rovnováhu. Pri spúšťaní sa nadýchni. Poznámka: Koleno prednej nohy veď v smere špičiek a pätu drž na zemi; nevadí, ak sa koleno mierne dostane pred špičky.",
       "Odraz sa hlavne pätou a s výdychom sa vráť do východiskovej polohy.",
       "Opakuj podľa plánovaného počtu opakovaní a potom cvik urob ľavou nohou."
     ],
     "en": [
       "Stand with your torso upright holding two dumbbells in your hands by your sides. This will be your starting position.",
-      "Step forward with your right leg around 2 feet or so from the foot being left stationary behind and lower your upper body down, while keeping the torso upright and maintaining balance. Inhale as you go down. Note: As in the other exercises, do not allow your knee to go forward beyond your toes as you come down, as this will put undue stress on the knee joint. Make sure that you keep your front shin perpendicular to the ground.",
+      "Step forward with your right leg around 2 feet or so from the foot being left stationary behind and lower your upper body down, while keeping the torso upright and maintaining balance. Inhale as you go down. Note: Keep your front knee in line with your toes and your front heel on the floor; it is fine if the knee moves slightly past the toes.",
       "Using mainly the heel of your foot, push up and go back to the starting position as you exhale.",
       "Repeat the movement for the recommended amount of repetitions and then perform with the left leg."
     ]
   },
   "leg_extension": {
     "sk": [
-      "Na tento cvik potrebuješ stroj na predkopávanie. Najprv si nastav záťaž a sadni si na stroj s nohami pod valcom (špičky smerujú dopredu), rukami drž bočné rukoväte. Toto je východisková poloha. Tip: Valec nastav tak, aby ti ležal na spodnej časti predkolenia (tesne nad chodidlami). Dbaj aj na to, aby stehno a lýtko zvierali uhol 90°. Ak je uhol menší ako 90°, koleno je pred špičkami, čo zbytočne zaťažuje kolenný kĺb. Ak je stroj takto skonštruovaný, nájdi si iný stroj alebo pri cvičení prestaň spúšťať, keď dosiahneš uhol 90°.",
+      "Na tento cvik potrebuješ stroj na predkopávanie. Najprv si nastav záťaž a sadni si na stroj s nohami pod valcom (špičky smerujú dopredu), rukami drž bočné rukoväte. Toto je východisková poloha. Tip: Valec nastav tak, aby ti ležal na spodnej časti predkolenia (tesne nad chodidlami), a operadlo tak, aby boli kolená v osi otáčania stroja. Začni s pohodlným uhlom v kolenách okolo 90°; hlbšie choď, len ak ťa kolená nebolia.",
       "Silou štvorhlavých svalov s výdychom maximálne vystri nohy. Zvyšok tela zostáva nehybne na sedadle. V hornej polohe 1 sekundu vydrž.",
       "S nádychom pomaly spúšťaj záťaž späť do východiskovej polohy a neprekroč pritom hranicu 90°.",
       "Opakuj podľa plánovaného počtu opakovaní."
     ],
     "en": [
-      "For this exercise you will need to use a leg extension machine. First choose your weight and sit on the machine with your legs under the pad (feet pointed forward) and the hands holding the side bars. This will be your starting position. Tip: You will need to adjust the pad so that it falls on top of your lower leg (just above your feet). Also, make sure that your legs form a 90-degree angle between the lower and upper leg. If the angle is less than 90-degrees then that means the knee is over the toes which in turn creates undue stress at the knee joint. If the machine is designed that way, either look for another machine or just make sure that when you start executing the exercise you stop going down once you hit the 90-degree angle.",
+      "For this exercise you will need to use a leg extension machine. First choose your weight and sit on the machine with your legs under the pad (feet pointed forward) and the hands holding the side bars. This will be your starting position. Tip: Adjust the pad so that it rests on your lower shins (just above your feet), and set the back rest so your knees line up with the machine's pivot point. Start with a comfortable knee bend of about 90 degrees; go deeper only if it feels fine on your knees.",
       "Using your quadriceps, extend your legs to the maximum as you exhale. Ensure that the rest of the body remains stationary on the seat. Pause a second on the contracted position.",
       "Slowly lower the weight back to the original position as you inhale, ensuring that you do not go past the 90-degree angle limit.",
       "Repeat for the recommended amount of times."
@@ -1315,7 +1315,7 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "Chodidlá polož na plošinu do stredného postoja na šírku ramien, špičky mierne vytočené von. Tip: Hlavu drž stále hore a chrbát stále opretý o operadlo.",
       "Chyť bočné rukoväte stroja a uvoľni bezpečnostné zarážky (na väčšine strojov to urobíš otočením bočných rukovätí z polohy smerom dopredu do diagonálnej polohy).",
       "Vystri nohy, ale nezamykaj kolená. Toto je východisková poloha. (Poznámka: Tu je opísaný stredný postoj, ktorý rozvíja nohy celkovo; môžeš však zvoliť aj užší alebo širší postoj.)",
-      "Pomaly spúšťaj záťaž ohýbaním kolien, trup drž vzpriamený a hlavu hore (chrbát stále na operadle). Pokračuj, kým uhol medzi stehnom a lýtkom nie je o niečo menší ako 90° (stehná sú vtedy pod rovnobežkou so zemou). Pri tejto fáze sa nadýchni. Tip: Pri správnej technike tvorí predná strana kolien so špičkami pomyselnú zvislú čiaru. Ak kolená prejdú za túto čiaru (pred špičky), zbytočne zaťažuješ kolená a cvik robíš nesprávne.",
+      "Pomaly spúšťaj záťaž ohýbaním kolien, trup drž vzpriamený a hlavu hore (chrbát stále na operadle). Pokračuj, kým uhol medzi stehnom a lýtkom nie je o niečo menší ako 90° (stehná sú vtedy pod rovnobežkou so zemou). Pri tejto fáze sa nadýchni. Tip: Kolená veď v smere špičiek. Nevadí, ak sa mierne dostanú pred špičky, pokiaľ päty ostávajú celé na zemi a kolená sa nestáčajú dnu.",
       "S výdychom tlač záťaž hore, odtláčaj sa od plošiny hlavne pätami, vystri nohy a vráť sa do východiskovej polohy.",
       "Opakuj podľa plánovaného počtu opakovaní."
     ],
@@ -1324,7 +1324,7 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "Position your legs in the platform using a shoulder width medium stance with the toes slightly pointed out. Tip: Keep your head up at all times and also maintain the back on the pad at all times.",
       "Place your arms on the side handles of the machine and disengage the safety bars (which on most designs is done by moving the side handles from a facing front position to a diagonal position).",
       "Now straighten your legs without locking the knees. This will be your starting position. (Note: For the purposes of this discussion we will use the medium stance described above which targets overall development; however you can choose any of the three stances described in the foot positioning section).",
-      "Begin to slowly lower the unit by bending the knees as you maintain a straight posture with the head up (back on the pad at all times). Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees (which is the point in which the upper legs are below parallel to the floor). Inhale as you perform this portion of the movement. Tip: If you performed the exercise correctly, the front of the knees should make an imaginary straight line with the toes that is perpendicular to the front. If your knees are past that imaginary line (if they are past your toes) then you are placing undue stress on the knee and the exercise has been performed incorrectly.",
+      "Begin to slowly lower the unit by bending the knees as you maintain a straight posture with the head up (back on the pad at all times). Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees (which is the point in which the upper legs are below parallel to the floor). Inhale as you perform this portion of the movement. Tip: Keep your knees tracking in the direction of your toes. It is fine for the knees to travel slightly past the toes, as long as your heels stay flat on the floor and your knees don't cave inward.",
       "Begin to raise the unit as you exhale by pushing the floor with mainly with the heel of your foot as you straighten the legs again and go back to the starting position.",
       "Repeat for the recommended amount of repetitions."
     ]
@@ -1334,7 +1334,7 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "Najprv nastav tyč do výšky, ktorá zodpovedá tvojej výške. Keď máš správnu výšku a naloženú záťaž, postav sa pod tyč a polož si ju na zadnú stranu ramien (tesne pod krkom).",
       "Chyť tyč oboma rukami po stranách (dlane smerujú dopredu), odisti ju a zdvihni zo zarážok: odtlač sa nohami a zároveň vyrovnaj trup.",
       "Chodidlá postav do stredného postoja na šírku ramien, špičky mierne vytočené von. Hlavu drž stále hore a chrbát rovný. Toto je východisková poloha. (Poznámka: Tu je opísaný stredný postoj, ktorý rozvíja nohy celkovo; môžeš však zvoliť aj užší alebo širší postoj.)",
-      "Pomaly spúšťaj tyč ohýbaním kolien, trup drž vzpriamený a hlavu hore. Pokračuj, kým uhol medzi stehnom a lýtkom nie je o niečo menší ako 90° (stehná sú vtedy pod rovnobežkou so zemou). Pri tejto fáze sa nadýchni. Tip: Pri správnej technike tvorí predná strana kolien so špičkami pomyselnú zvislú čiaru. Ak kolená prejdú za túto čiaru (pred špičky), zbytočne zaťažuješ kolená a cvik robíš nesprávne.",
+      "Pomaly spúšťaj tyč ohýbaním kolien, trup drž vzpriamený a hlavu hore. Pokračuj, kým uhol medzi stehnom a lýtkom nie je o niečo menší ako 90° (stehná sú vtedy pod rovnobežkou so zemou). Pri tejto fáze sa nadýchni. Tip: Kolená veď v smere špičiek. Nevadí, ak sa mierne dostanú pred špičky, pokiaľ päty ostávajú celé na zemi a kolená sa nestáčajú dnu.",
       "S výdychom tlač tyč hore, odtláčaj sa od zeme pätami, vystri nohy a vráť sa do východiskovej polohy.",
       "Opakuj podľa plánovaného počtu opakovaní."
     ],
@@ -1342,7 +1342,7 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "To begin, first set the bar on the height that best matches your height. Once the correct height is chosen and the bar is loaded, step under the bar and place the back of your shoulders (slightly below the neck) across it.",
       "Hold on to the bar using both arms at each side (palms facing forward), unlock it and lift it off the rack by first pushing with your legs and at the same time straightening your torso.",
       "Position your legs using a shoulder width medium stance with the toes slightly pointed out. Keep your head up at all times and also maintain a straight back. This will be your starting position. (Note: For the purposes of this discussion we will use the medium stance which targets overall development; however you can choose any of the three stances discussed in the foot stances section).",
-      "Begin to slowly lower the bar by bending the knees as you maintain a straight posture with the head up. Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees (which is the point in which the upper legs are below parallel to the floor). Inhale as you perform this portion of the movement. Tip: If you performed the exercise correctly, the front of the knees should make an imaginary straight line with the toes that is perpendicular to the front. If your knees are past that imaginary line (if they are past your toes) then you are placing undue stress on the knee and the exercise has been performed incorrectly.",
+      "Begin to slowly lower the bar by bending the knees as you maintain a straight posture with the head up. Continue down until the angle between the upper leg and the calves becomes slightly less than 90-degrees (which is the point in which the upper legs are below parallel to the floor). Inhale as you perform this portion of the movement. Tip: Keep your knees tracking in the direction of your toes. It is fine for the knees to travel slightly past the toes, as long as your heels stay flat on the floor and your knees don't cave inward.",
       "Begin to raise the bar as you exhale by pushing the floor with the heel of your foot as you straighten the legs again and go back to the starting position.",
       "Repeat for the recommended amount of repetitions."
     ]
@@ -1392,13 +1392,13 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
   "dumbbell_rear_lunge": {
     "sk": [
       "Postav sa vzpriamene s jednoručkami v rukách pozdĺž tela. Toto je východisková poloha.",
-      "Pravou nohou vykroč dozadu asi 60 cm od ľavého chodidla a spúšťaj telo, pričom trup držíš vzpriamený a udržiavaš rovnováhu. Pri spúšťaní sa nadýchni. Tip: Tak ako pri ostatných cvikoch, nedovoľ, aby sa koleno pri spúšťaní dostalo pred špičky, inak zbytočne zaťažuješ kolenný kĺb. Holeň prednej nohy drž kolmo na zem. Počas výpadu drž trup vzpriamený; dôležitá je pritom dobrá pohyblivosť flexorov bedra. Dlhý výpad viac zaťažuje veľký sedací sval, krátky výpad viac štvorhlavý sval stehna.",
+      "Pravou nohou vykroč dozadu asi 60 cm od ľavého chodidla a spúšťaj telo, pričom trup držíš vzpriamený a udržiavaš rovnováhu. Pri spúšťaní sa nadýchni. Tip: Koleno prednej nohy veď v smere špičiek a pätu drž na zemi; nevadí, ak sa koleno mierne dostane pred špičky. Počas výpadu drž trup vzpriamený; dôležitá je pritom dobrá pohyblivosť flexorov bedra. Dlhý výpad viac zaťažuje veľký sedací sval, krátky výpad viac štvorhlavý sval stehna.",
       "S výdychom sa odtlač a vráť sa do východiskovej polohy. Tip: Ak sa odtláčaš prednou časťou chodidla, viac zapojíš štvorhlavý sval. Ak sa chceš zamerať na sedacie svaly, tlač cez päty.",
       "Zopakuj s druhou nohou."
     ],
     "en": [
       "Stand with your torso upright holding two dumbbells in your hands by your sides. This will be your starting position.",
-      "Step backward with your right leg around two feet or so from the left foot and lower your upper body down, while keeping the torso upright and maintaining balance. Inhale as you go down. Tip: As in the other exercises, do not allow your knee to go forward beyond your toes as you come down, as this will put undue stress on the knee joint. Make sure that you keep your front shin perpendicular to the ground. Keep the torso upright during the lunge; flexible hip flexors are important. A long lunge emphasizes the Gluteus Maximus; a short lunge emphasizes Quadriceps.",
+      "Step backward with your right leg around two feet or so from the left foot and lower your upper body down, while keeping the torso upright and maintaining balance. Inhale as you go down. Tip: Keep your front knee in line with your toes and your front heel on the floor; it is fine if the knee moves slightly past the toes. Keep the torso upright during the lunge; flexible hip flexors are important. A long lunge emphasizes the Gluteus Maximus; a short lunge emphasizes Quadriceps.",
       "Push up and go back to the starting position as you exhale. Tip: Use the ball of your feet to push in order to accentuate the quadriceps. To focus on the glutes, press with your heels.",
       "Now repeat with the opposite leg."
     ]
@@ -1847,12 +1847,12 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
     "sk": [
       "Postav sa chrbtom k lavičke alebo schodíku vo vzdialenosti asi 60–90 cm.",
       "Zdvihni jednu nohu za seba a polož ju na lavičku buď nártom, alebo prednou časťou chodidla, podľa toho, čo ti je pohodlnejšie.",
-      "Stojnú nohu maj v kolene mierne pokrčenú a nedovoľ, aby sa koleno dostalo pred špičku. Vymeň strany."
+      "Stojnú nohu maj v kolene mierne pokrčenú a trup drž vzpriamene. Vymeň strany."
     ],
     "en": [
       "Start by standing with your back about two to three feet away from a bench or step.",
       "Lift one leg behind you and rest your foot on the step, either on your instep or the ball of your foot, whichever you find most comfortable.",
-      "Keep your supporting knee slightly bent and avoid letting that knee extend out beyond your toes. Switch sides."
+      "Keep your supporting knee slightly bent and your torso upright. Switch sides."
     ]
   },
   "kneeling_hip_flexor": {
