@@ -43,6 +43,11 @@ export function useAuth(): AuthState {
   return useContext(AuthContext);
 }
 
+export function useMyUserId(): string | undefined {
+  const { session } = useAuth();
+  return session?.user?.id;
+}
+
 export function signOut(): Promise<unknown> {
   return supabase.auth.signOut();
 }
