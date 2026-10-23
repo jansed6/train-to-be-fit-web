@@ -2,8 +2,7 @@
 
 import { Container, PageTitle, BackLink } from "@/components/ui/layout";
 import { PlanEditor } from "@/components/PlanEditor";
-import { useClient, usePlan } from "@/lib/hooks";
-import { useMyUserId } from "@/lib/auth";
+import { useClient, useClientPlans } from "@/lib/hooks";
 import { clientLabel } from "@/lib/coaching";
 
 export default function EditClientPlanPage({
@@ -12,12 +11,12 @@ export default function EditClientPlanPage({
   params: { clientId: string; planId: string };
 }) {
   const client = useClient(params.clientId);
-  const plan = usePlan(params.planId);
-  const me = useMyUserId();
+  const clientPlans = useClientPlans(params.clientId);
+  const plan = clientPlans?.find((p) => p.id === params.planId);
 
-  const loading = client === undefined || plan === undefined || me === undefined;
+  const loading = client === undefined || clientPlans === undefined;
   const clientNotFound = client === null;
-  const planNotFound = plan === null || (plan && plan.trainerId !== me);
+  const planNotFound = !plan;
 
   return (
     <Container>
