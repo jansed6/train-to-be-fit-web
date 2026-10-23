@@ -34,17 +34,24 @@ Configuration (Site URL + Redirect URLs) so confirmation/reset emails work.
 
 ## Setup
 
-After pulling updates, run the whole `supabase/schema.sql` in the Supabase SQL
-editor to apply schema changes. In Supabase → Authentication → Email, keep
-"Confirm email" enabled — trainer invites are matched by the email in the
-sign-in token.
+**Database first, then the app.** Before merging or deploying a change that
+touches `supabase/schema.sql` (including the trainer role), run the whole
+`supabase/schema.sql` in the Supabase SQL editor. Vercel deploys every merge to
+`main`, and the new frontend reads columns, tables and functions the schema adds
+(e.g. `plans.trainer_id`, `coachings`): if it goes live before the SQL has run,
+Home shows no plans, a workout hangs on "Loading…", and Clients and the invite
+banner stay blank. The schema is safe to run first — it is idempotent and the
+current frontend keeps working on it.
+
+In Supabase → Authentication → Email, keep "Confirm email" enabled — trainer
+invites are matched by the email in the sign-in token.
 
 ## Structure
 
 - `app/` — Next.js App Router pages (home, workout, history, progress, plans, sign-in gate)
 - `components/` — UI primitives and feature components
 - `lib/` — Supabase client, auth, data access (`repo.ts`), hooks, domain logic
-- `supabase/schema.sql` — database schema (run once in the Supabase SQL editor)
+- `supabase/schema.sql` — database schema (re-runnable; run it in the Supabase SQL editor before deploying a change to it — see Setup)
 
 ## Features
 
