@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { inputClass } from "@/components/ui/Input";
 import { formatWeight } from "@/lib/format";
-import { parseWeight, type SetRow as SetRowData } from "@/lib/useActiveWorkout";
+import { parseWeight, type SetRow as SetRowData } from "@/lib/workoutRows";
 
 const WEIGHT_STEP = 1;
 const REPS_STEP = 1;

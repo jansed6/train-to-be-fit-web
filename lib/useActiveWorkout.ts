@@ -2,84 +2,20 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getPlan, getAllSessions, saveSession, uid } from "./repo";
-import { formatWeight } from "./format";
-import { findCatalogExercise, normalize } from "./exerciseCatalog";
-import type { Exercise, WorkoutSession, SessionExercise, LoggedSet } from "./types";
+import { setTargets } from "./planTargets";
+import {
+  weightsFromSessions,
+  prefilledRows,
+  buildSession,
+  isValidRow,
+  type SetRow,
+  type ActiveExercise,
+  type WeightsByKey,
+} from "./workoutRows";
+import type { Exercise } from "./types";
 
-export interface SetRow {
-  weight: string;
-  reps: string;
-  done: boolean;
-  /** True while the weight is carried over from last time (shown greyed). */
-  prefilled: boolean;
-}
-
-export interface ActiveExercise {
-  id: string;
-  name: string;
-  catalogId?: string;
-  targetSets: number;
-  targetReps: string;
-  rows: SetRow[];
-}
-
-export function parseWeight(text: string): number | null {
-  if (text.trim() === "") return null;
-  const n = Number(text.replace(",", "."));
-  return Number.isFinite(n) ? n : null;
-}
-
-export function isValidRow(row: SetRow): boolean {
-  const w = parseWeight(row.weight);
-  const r = parseInt(row.reps, 10);
-  return w !== null && w >= 0 && r > 0;
-}
-
-/** Keys a movement can match on: catalogue id (if any) and the folded name.
- *  Matching on both means history saved before catalogIds existed still lines up. */
-function keysFor(catalogId: string | undefined, name: string): string[] {
-  const nameKey = "name:" + normalize(name);
-  return catalogId ? ["id:" + catalogId, nameKey] : [nameKey];
-}
-
-/** The first whole number in a rep target ("8-10" -> "8", "10" -> "10"). */
-function firstInt(text: string): string {
-  const m = text.match(/\d+/);
-  return m ? m[0] : "";
-}
-
-type WeightsByKey = Map<string, number[]>;
-
-/** Rows for a fresh exercise: reps from the plan target, weights (greyed) from
- *  the last session that logged the movement. */
-function prefilledRows(
-  ex: Pick<Exercise, "name" | "catalogId" | "sets" | "reps">,
-  weightsByKey: WeightsByKey,
-): SetRow[] {
-  const reps = firstInt(ex.reps);
-  let weights: number[] | undefined;
-  for (const key of keysFor(ex.catalogId, ex.name)) {
-    const found = weightsByKey.get(key);
-    if (found) {
-      weights = found;
-      break;
-    }
-  }
-  // Bodyweight moves and stretches start at 0 kg, so a set can be ticked without typing a weight.
-  const catalog = findCatalogExercise(ex.catalogId, ex.name);
-  const noLoad = !!catalog && (catalog.group === "Stretching" || /^bodyweight|pull-up bar|parallel bars/.test(catalog.equipment));
-  return Array.from({ length: Math.max(ex.sets, 1) }, (_row, i) => {
-    const weight = weights
-      ? formatWeight(weights[i] ?? weights[weights.length - 1])
-      : noLoad
-        ? "0"
-        : "";
-    return { weight, reps, done: false, prefilled: weight !== "" };
-  });
-}
-
-/** Loads a plan day. Reps come from the plan's target; weights are pre-filled
- *  (greyed) from the last workout that logged the exercise. */
+/** Loads a plan day. Reps and weights come from per-set targets, falling back
+ *  to last time's weights (greyed). */
 export function useActiveWorkout(planId: string, dayId: string) {
   const [planDayName, setPlanDayName] = useState("");
   const [exercises, setExercises] = useState<ActiveExercise[] | null>(null);
@@ -88,6 +24,8 @@ export function useActiveWorkout(planId: string, dayId: string) {
   const [startedAt] = useState(() => Date.now());
   // Kept so exercises added mid-workout get the same weight prefill.
   const weightsRef = useRef<WeightsByKey>(new Map());
+  // The day's Exercise[] for buildSession's plan snapshot.
+  const plannedRef = useRef<Exercise[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,24 +40,16 @@ export function useActiveWorkout(planId: string, dayId: string) {
 
       // Weights (per set) from the most recent session that logged each movement.
       const sessions = await getAllSessions();
-      const weightsByKey: WeightsByKey = new Map();
-      for (const s of sessions) {
-        for (const se of s.exercises) {
-          if (se.sets.length === 0) continue;
-          const weights = se.sets.map((x) => x.weightKg);
-          for (const key of keysFor(se.catalogId, se.name)) {
-            if (!weightsByKey.has(key)) weightsByKey.set(key, weights);
-          }
-        }
-      }
+      const weightsByKey = weightsFromSessions(sessions);
       weightsRef.current = weightsByKey;
+      plannedRef.current = day.exercises;
 
       const built: ActiveExercise[] = day.exercises.map((ex) => ({
         id: ex.id,
         name: ex.name,
         catalogId: ex.catalogId,
-        targetSets: ex.sets,
-        targetReps: ex.reps,
+        planned: true,
+        targets: setTargets(ex),
         rows: prefilledRows(ex, weightsByKey),
       }));
 
@@ -207,8 +137,8 @@ export function useActiveWorkout(planId: string, dayId: string) {
       id: uid(),
       name: it.name,
       catalogId: it.catalogId,
-      targetSets: it.sets,
-      targetReps: it.reps,
+      planned: false,
+      targets: setTargets(it),
       rows: prefilledRows(it, weightsRef.current),
     }));
     setExercises((exs) => (exs ? [...exs, ...added] : exs));
@@ -223,26 +153,17 @@ export function useActiveWorkout(planId: string, dayId: string) {
   /** Saves the workout. Returns true if anything was saved. */
   async function finish(): Promise<boolean> {
     if (!exercises) return false;
-    const sessionExercises: SessionExercise[] = exercises
-      .map((ex): SessionExercise => {
-        const sets: LoggedSet[] = ex.rows.filter(isValidRow).map((r, idx) => ({
-          setNumber: idx + 1,
-          weightKg: parseWeight(r.weight) ?? 0,
-          reps: parseInt(r.reps, 10),
-        }));
-        return { id: ex.id || uid(), name: ex.name, catalogId: ex.catalogId, sets };
-      })
-      .filter((se) => se.sets.length > 0);
-
-    if (sessionExercises.length === 0) return false;
-
-    const session: WorkoutSession = {
+    const session = buildSession({
       id: uid(),
-      date: startedAt,
+      planId,
+      dayId,
       planDayName,
-      durationSeconds: Math.floor((Date.now() - startedAt) / 1000),
-      exercises: sessionExercises,
-    };
+      startedAt,
+      finishedAt: Date.now(),
+      planned: plannedRef.current,
+      exercises,
+    });
+    if (!session) return false;
     await saveSession(session);
     return true;
   }

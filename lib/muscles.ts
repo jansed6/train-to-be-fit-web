@@ -73,6 +73,7 @@ export function levelsFor(muscles: ExerciseMuscles): MuscleLevels {
 export function sessionLevels(session: WorkoutSession): MuscleLevels {
   const load: MuscleLevels = {};
   for (const ex of session.exercises) {
+    if (ex.sets.length === 0) continue;
     const muscles = musclesFor(ex.catalogId, ex.name);
     if (!muscles) continue;
     const sets = ex.sets.length;
