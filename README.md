@@ -13,6 +13,13 @@ npm run dev
 
 Open http://localhost:3000.
 
+**Tests:**
+
+```bash
+npm test              # unit tests (lib/**/*.test.ts; TZ pinned to Europe/Bratislava)
+npm run test:db       # DB tests (needs local Postgres binaries; Postgres.app or $PG_BIN)
+```
+
 ## Deploy on Vercel
 
 1. Import this repository in Vercel (the app is at the repo root — no root
@@ -24,6 +31,13 @@ Open http://localhost:3000.
 
 After deploying, add your Vercel URL to Supabase → Authentication → URL
 Configuration (Site URL + Redirect URLs) so confirmation/reset emails work.
+
+## Setup
+
+After pulling updates, run the whole `supabase/schema.sql` in the Supabase SQL
+editor to apply schema changes. In Supabase → Authentication → Email, keep
+"Confirm email" enabled — trainer invites are matched by the email in the
+sign-in token.
 
 ## Structure
 
@@ -38,6 +52,14 @@ Plans built by picking from an exercise catalogue (or custom), a scrollable
 workout logger with ± steppers and a rest timer, weight prefill from the last
 session, workout history, and per-exercise progress charts. Data is stored
 per-user in Supabase Postgres with Row-Level Security.
+
+**Trainer role:** any user can invite a client by email (Clients page); the
+client accepts on Home; the trainer builds plans in the client's account with
+reps and an optional weight per set; the client trains with those targets
+prefilled (only ticked sets are saved); the trainer sees the client's workout
+count, week, each workout compared with the plan (skipped / below target), and
+exercise progress charts; either side can end the coaching, after which the
+trainer's plans become the client's own.
 
 ## Credits
 
