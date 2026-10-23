@@ -12,6 +12,7 @@ import { starterPlans } from "@/lib/starterPlans";
 import { usePlans, useSessions } from "@/lib/hooks";
 import { signOut } from "@/lib/auth";
 import { totalVolume } from "@/lib/format";
+import { startOfWeekMs } from "@/lib/clientStats";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -20,19 +21,11 @@ function greeting(): string {
   return "Evening session?";
 }
 
-function startOfWeekMs(): number {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  const mondayOffset = (d.getDay() + 6) % 7; // Monday = 0
-  d.setDate(d.getDate() - mondayOffset);
-  return d.getTime();
-}
-
 export default function HomePage() {
   const plans = usePlans();
   const sessions = useSessions();
 
-  const weekStart = startOfWeekMs();
+  const weekStart = startOfWeekMs(new Date());
   const weekSessions = (sessions ?? []).filter((s) => s.date >= weekStart);
   const weekVolume = Math.round(
     weekSessions.reduce((sum, s) => sum + totalVolume(s), 0),
