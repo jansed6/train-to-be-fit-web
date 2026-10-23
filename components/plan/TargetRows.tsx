@@ -15,9 +15,28 @@ export function TargetRows({
   // Local state for weight inputs to preserve typing state like "27." or "27,"
   const [weightTexts, setWeightTexts] = useState<string[]>([]);
 
-  // Initialize weight texts from targets when targets change externally
+  // Resync weight texts only when prop values differ from what current text parses to
   useEffect(() => {
-    setWeightTexts(targets.map((t) => (t.weightKg !== undefined ? formatWeight(t.weightKg) : "")));
+    setWeightTexts((prev) => {
+      return targets.map((t, i) => {
+        const currentText = prev[i] ?? "";
+        const currentParsed = parseWeight(currentText);
+        const propValue = t.weightKg;
+
+        // If both represent "no weight", keep current text (preserves typing)
+        if (currentParsed === null && propValue === undefined) {
+          return currentText;
+        }
+
+        // If parsed value matches prop value, keep current text (preserves "27." when weightKg = 27)
+        if (currentParsed === propValue) {
+          return currentText;
+        }
+
+        // Otherwise resync from prop (external change)
+        return propValue !== undefined ? formatWeight(propValue) : "";
+      });
+    });
   }, [targets]);
 
   function updateReps(index: number, reps: string) {
