@@ -1,21 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { Container, PageTitle } from "@/components/ui/layout";
 import { StatTile } from "@/components/ui/StatTile";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SessionRow } from "@/components/history/SessionRow";
-import { Sparkline } from "@/components/progress/Sparkline";
+import { ExerciseProgressList } from "@/components/progress/ExerciseProgressList";
 import { MoodBear } from "@/components/MoodBear";
 import { useSessions } from "@/lib/hooks";
-import { exerciseSummaries } from "@/lib/progress";
 import { loadSampleData } from "@/lib/sampleData";
-import { formatWeight } from "@/lib/format";
 
 export default function HistoryPage() {
   const sessions = useSessions();
-  const summaries = sessions ? exerciseSummaries(sessions) : [];
 
   return (
     <Container>
@@ -43,28 +38,10 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          {summaries.length > 0 && (
-            <div className="mb-6">
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                Exercise progress
-              </div>
-              <div className="flex flex-col gap-2">
-                {summaries.map((s) => (
-                  <Link key={s.slug} href={`/progress/${encodeURIComponent(s.slug)}`}>
-                    <Card className="flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="truncate font-medium">{s.name}</div>
-                        <div className="text-xs text-muted">
-                          {formatWeight(s.latestWeight)} kg · {s.sessions} sessions
-                        </div>
-                      </div>
-                      <Sparkline points={s.points} />
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
+          <ExerciseProgressList
+            sessions={sessions}
+            hrefFor={(slug) => `/progress/${encodeURIComponent(slug)}`}
+          />
 
           <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
             Workouts
