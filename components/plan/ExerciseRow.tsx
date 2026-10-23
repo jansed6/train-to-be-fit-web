@@ -1,7 +1,9 @@
 import { SubCard } from "@/components/ui/Card";
-import { Input, Field } from "@/components/ui/Input";
+import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { catalogById } from "@/lib/exerciseCatalog";
+import { setTargets, withTargets } from "@/lib/planTargets";
+import { TargetRows } from "./TargetRows";
 import type { Exercise } from "@/lib/types";
 
 export function ExerciseRow({
@@ -30,26 +32,10 @@ export function ExerciseRow({
       )}
       <div className="flex items-end gap-2">
         <div className="flex-1">
-          <Field label="Sets">
-            <Input
-              type="number"
-              min={1}
-              max={20}
-              value={exercise.sets}
-              onChange={(e) =>
-                onChange({ sets: Math.max(1, Number(e.target.value) || 1) })
-              }
-            />
-          </Field>
-        </div>
-        <div className="flex-1">
-          <Field label="Reps">
-            <Input
-              placeholder="8-10"
-              value={exercise.reps}
-              onChange={(e) => onChange({ reps: e.target.value })}
-            />
-          </Field>
+          <TargetRows
+            targets={setTargets(exercise)}
+            onChange={(targets) => onChange(withTargets(targets))}
+          />
         </div>
         <Button variant="danger" size="sm" onClick={onRemove}>
           ✕

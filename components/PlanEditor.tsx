@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { savePlan, uid } from "@/lib/repo";
+import { withTargets } from "@/lib/planTargets";
 import { Field, Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { DayEditor } from "@/components/plan/DayEditor";
@@ -37,7 +38,13 @@ export function PlanEditor({ initial }: { initial?: Plan }) {
               ...x,
               exercises: [
                 ...x.exercises,
-                { id: uid(), name: "", sets: 3, reps: "10" },
+                {
+                  id: uid(),
+                  name: "",
+                  ...withTargets(
+                    Array.from({ length: 3 }, () => ({ reps: "10" })),
+                  ),
+                },
               ],
             }
           : x,
