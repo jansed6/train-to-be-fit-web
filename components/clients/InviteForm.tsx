@@ -58,7 +58,7 @@ export function InviteForm() {
         </div>
         {error && <p className="mb-3 text-sm text-red-500">{error}</p>}
         {success && (
-          <p className="mb-3 text-sm text-green-600">
+          <p className="mb-3 text-sm text-ok">
             Invite sent. It'll appear when they sign in with this email.
           </p>
         )}

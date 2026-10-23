@@ -29,7 +29,7 @@ export function ClientSessionRow({
       {statusText && (
         <div
           className={`whitespace-nowrap text-sm ${
-            statusText.startsWith("✓") ? "text-green-600" : "text-orange-600"
+            statusText.startsWith("✓") ? "text-ok" : "text-warn"
           }`}
         >
           {statusText}

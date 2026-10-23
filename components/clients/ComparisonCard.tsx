@@ -17,8 +17,8 @@ export function ComparisonCard({ comparison }: { comparison: ExerciseComparison 
       <div className="mb-2">
         <span className="text-[17px] font-semibold">{exercise.name}</span>
         {catalog && <span className="text-[15px] text-muted"> · {catalog.sk}</span>}
-        {isSkipped && <span className="ml-2 text-[13px] font-semibold text-orange-600">Skipped</span>}
-        {isAdded && <span className="ml-2 text-[13px] font-semibold text-orange-600">Added</span>}
+        {isSkipped && <span className="ml-2 text-[13px] font-semibold text-warn">Skipped</span>}
+        {isAdded && <span className="ml-2 text-[13px] font-semibold text-warn">Added</span>}
       </div>
 
       {!isAdded && !isUntracked && exercise.targets && (
@@ -43,7 +43,7 @@ export function ComparisonCard({ comparison }: { comparison: ExerciseComparison 
                   return (
                     <div
                       key={i}
-                      className="rounded-lg border border-dashed border-gray-300 px-2 py-1 text-[13px] text-muted"
+                      className="rounded-lg border border-dashed border-muted px-2 py-1 text-[13px] text-muted"
                     >
                       —
                     </div>
@@ -54,7 +54,7 @@ export function ComparisonCard({ comparison }: { comparison: ExerciseComparison 
                     key={i}
                     className={`rounded-lg px-2 py-1 text-[13px] ${
                       setComparison.below
-                        ? "bg-orange-100 text-orange-700"
+                        ? "bg-warn-bg text-warn"
                         : "bg-surface-2"
                     }`}
                   >
