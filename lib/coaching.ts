@@ -45,35 +45,30 @@ export async function getCoachings(): Promise<Coaching[]> {
   return (data ?? []).map(coachingFromRow);
 }
 
-export async function inviteClient(email: string, name: string): Promise<string> {
-  const { data, error } = await supabase.rpc("invite_client", {
-    p_email: email,
-    p_name: name,
-  });
-  if (error) throw error;
+/** Calls a coaching function and refreshes the coachings either way. On failure
+ *  the invite or coaching may have changed elsewhere (cancelled, answered,
+ *  ended), so the refresh drops the stale card before the error is shown. */
+async function coachingRpc(fn: string, args: Record<string, unknown>): Promise<unknown> {
+  const { data, error } = await supabase.rpc(fn, args);
   await mutate("coachings");
+  if (error) throw error;
   return data;
 }
 
+export async function inviteClient(email: string, name: string): Promise<string> {
+  return (await coachingRpc("invite_client", { p_email: email, p_name: name })) as string;
+}
+
 export async function respondToInvite(id: string, accept: boolean): Promise<void> {
-  const { error } = await supabase.rpc("respond_to_invite", {
-    p_id: id,
-    p_accept: accept,
-  });
-  if (error) throw error;
-  await mutate("coachings");
+  await coachingRpc("respond_to_invite", { p_id: id, p_accept: accept });
 }
 
 export async function cancelInvite(id: string): Promise<void> {
-  const { error } = await supabase.rpc("cancel_invite", { p_id: id });
-  if (error) throw error;
-  await mutate("coachings");
+  await coachingRpc("cancel_invite", { p_id: id });
 }
 
 export async function endCoaching(id: string): Promise<void> {
-  const { error } = await supabase.rpc("end_coaching", { p_id: id });
-  if (error) throw error;
-  await mutate("coachings");
+  await coachingRpc("end_coaching", { p_id: id });
   await mutate("plans");
 }
 
@@ -108,6 +103,10 @@ export function coachingErrorMessage(err: unknown): string {
       return "You already have a trainer. End that coaching first to accept a new one.";
     case "invalid_email":
       return "Enter a valid email.";
+    case "invite_not_found":
+      return "This invite is no longer available.";
+    case "coaching_not_found":
+      return "This coaching has already ended.";
     default:
       return "Something went wrong. Try again.";
   }

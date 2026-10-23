@@ -16,7 +16,10 @@ export function InviteBanner() {
   if (!coachings || !me) return null;
 
   const invites = invitesForMe(coachings, me);
-  if (invites.length === 0) return null;
+  // A failed answer refreshes the coachings; if the invite is gone (cancelled
+  // elsewhere), its card is too, so the error is shown on its own.
+  const staleError = error && !invites.some((i) => i.id === error.id) ? error.message : null;
+  if (invites.length === 0 && !staleError) return null;
 
   async function respond(id: string, accept: boolean) {
     setBusy(id);
@@ -32,6 +35,7 @@ export function InviteBanner() {
 
   return (
     <div className="mb-6 flex flex-col gap-3">
+      {staleError && <p className="text-sm text-red-500">{staleError}</p>}
       {invites.map((invite) => (
         <Card key={invite.id}>
           <p className="mb-3">

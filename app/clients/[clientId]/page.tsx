@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Container, PageTitle, BackLink } from "@/components/ui/layout";
 import { StatTile } from "@/components/ui/StatTile";
@@ -21,6 +22,23 @@ export default function ClientProfilePage({
   const client = useClient(clientId);
   const plans = useClientPlans(clientId);
   const sessions = useClientSessions(clientId);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [deleteFailed, setDeleteFailed] = useState(false);
+
+  async function handleDelete(planId: string, planName: string) {
+    if (!confirm(`Delete plan "${planName}"?`)) return;
+    setDeleting(planId);
+    setDeleteFailed(false);
+    try {
+      await deleteClientPlan(clientId, planId);
+    } catch {
+      // Shown above the list: after a refresh the plan's card may be gone (e.g.
+      // the client just ended the coaching).
+      setDeleteFailed(true);
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   if (client === null) {
     return (
@@ -70,6 +88,9 @@ export default function ClientProfilePage({
         Plans
       </div>
       <div className="mb-6 space-y-3">
+        {deleteFailed && (
+          <p className="text-sm text-red-500">Couldn&apos;t delete the plan. Try again.</p>
+        )}
         {plans.map((plan) => (
           <Card key={plan.id}>
             <div className="flex items-center justify-between gap-2">
@@ -84,11 +105,8 @@ export default function ClientProfilePage({
                 <Button
                   variant="danger"
                   size="sm"
-                  onClick={() => {
-                    if (confirm(`Delete plan "${plan.name}"?`)) {
-                      deleteClientPlan(clientId, plan.id);
-                    }
-                  }}
+                  onClick={() => handleDelete(plan.id, plan.name)}
+                  disabled={deleting === plan.id}
                 >
                   Delete
                 </Button>

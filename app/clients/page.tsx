@@ -30,6 +30,14 @@ export default function ClientsPage() {
   const trainer = myTrainer(coachings, me);
   const clients = myClients(coachings, me);
   const pendingInvites = myPendingInvites(coachings, me);
+  // A failed action refreshes the coachings; when the card it came from is
+  // gone (the invite or coaching changed elsewhere), show the error up top.
+  const cardIds = new Set([
+    ...(trainer ? [trainer.id] : []),
+    ...clients.map((c) => c.id),
+    ...pendingInvites.map((c) => c.id),
+  ]);
+  const staleError = error && !cardIds.has(error.id) ? error.message : null;
 
   async function handleEndCoaching(id: string, confirmMessage: string) {
     if (!confirm(confirmMessage)) return;
@@ -60,6 +68,7 @@ export default function ClientsPage() {
   return (
     <Container>
       <PageTitle>Clients</PageTitle>
+      {staleError && <p className="mb-4 text-sm text-red-500">{staleError}</p>}
 
       {trainer && (
         <div className="mb-6">

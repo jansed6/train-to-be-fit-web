@@ -14,6 +14,8 @@ export function PlanEditor({ initial, clientId }: { initial?: Plan; clientId?: s
   const router = useRouter();
   const [name, setName] = useState(initial?.name ?? "");
   const [days, setDays] = useState<PlanDay[]>(initial?.days ?? []);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function addDay() {
     setDays((d) => [
@@ -115,12 +117,20 @@ export function PlanEditor({ initial, clientId }: { initial?: Plan; clientId?: s
       createdAt: initial?.createdAt ?? Date.now(),
       days: cleanedDays,
     };
-    if (clientId) {
-      await saveClientPlan(clientId, plan);
-      router.push(`/clients/${clientId}`);
-    } else {
-      await savePlan(plan);
-      router.push("/");
+    setSaving(true);
+    setError(null);
+    try {
+      if (clientId) {
+        await saveClientPlan(clientId, plan);
+        router.push(`/clients/${clientId}`);
+      } else {
+        await savePlan(plan);
+        router.push("/");
+      }
+    } catch {
+      // E.g. the client just ended the coaching: stay here so nothing is lost.
+      setError("Couldn't save the plan. Try again.");
+      setSaving(false);
     }
   }
 
@@ -148,7 +158,8 @@ export function PlanEditor({ initial, clientId }: { initial?: Plan; clientId?: s
       ))}
 
       <Button onClick={addDay}>+ Add day</Button>
-      <Button variant="primary" block disabled={!canSave} onClick={save}>
+      {error && <p className="text-sm text-red-500">{error}</p>}
+      <Button variant="primary" block disabled={!canSave || saving} onClick={save}>
         Save plan
       </Button>
     </div>

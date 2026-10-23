@@ -38,11 +38,14 @@ export async function getAllPlans(): Promise<Plan[]> {
   return (data ?? []).map((row) => planFromRow(row as { data: Plan; trainer_id: string | null }));
 }
 
+/** One of my own plans (a trainer reads a client's plans via getClientPlans). */
 export async function getPlan(id: string): Promise<Plan | undefined> {
+  const me = await currentUserId();
   const { data, error } = await supabase
     .from("plans")
     .select("data, trainer_id")
     .eq("id", id)
+    .eq("user_id", me)
     .maybeSingle();
   if (error) throw error;
   if (!data) return undefined;
@@ -85,9 +88,12 @@ export async function saveClientPlan(clientId: string, plan: Plan): Promise<void
 }
 
 export async function deleteClientPlan(clientId: string, id: string): Promise<void> {
-  const { error } = await supabase.from("plans").delete().eq("id", id);
+  // RLS turns a denied delete (e.g. the coaching just ended) into a no-op, not an
+  // error, so check that the plan was actually deleted.
+  const { data, error } = await supabase.from("plans").delete().eq("id", id).select("id");
   if (error) throw error;
   await mutate(["client-plans", clientId]);
+  if (!data || data.length === 0) throw new Error("plan_not_deleted");
 }
 
 export async function getClientPlans(clientId: string): Promise<Plan[]> {
@@ -115,11 +121,14 @@ export async function getAllSessions(): Promise<WorkoutSession[]> {
   return (data ?? []).map((row) => row.data as WorkoutSession);
 }
 
+/** One of my own sessions (a trainer reads a client's via getClientSessions). */
 export async function getSession(id: string): Promise<WorkoutSession | undefined> {
+  const me = await currentUserId();
   const { data, error } = await supabase
     .from("sessions")
     .select("data")
     .eq("id", id)
+    .eq("user_id", me)
     .maybeSingle();
   if (error) throw error;
   return (data?.data as WorkoutSession | undefined) ?? undefined;

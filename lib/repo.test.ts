@@ -2,13 +2,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   getAllPlans,
   getAllSessions,
+  getPlan,
+  getSession,
   getClientPlans,
   saveClientPlan,
+  deleteClientPlan,
   planFromRow,
 } from "./repo";
 
 // Track all Supabase calls
 const calls = { eq: [] as Array<[string, string, string]>, upsert: [] as Array<{ table: string; row: any }> };
+// Rows a delete(...).select() reports as deleted (RLS makes a denied delete a no-op).
+const db = { deleted: [] as unknown[] };
 
 // Mock the Supabase client
 vi.mock("./supabase", () => {
@@ -30,7 +35,13 @@ vi.mock("./supabase", () => {
         };
       },
       delete: () => ({
-        eq: () => Promise.resolve({ error: null }),
+        eq: (col: string, val: string) => {
+          calls.eq.push([table, col, val]);
+          return {
+            select: () => Promise.resolve({ data: db.deleted, error: null }),
+            then: (resolve: (value: { error: null }) => void) => resolve({ error: null }),
+          };
+        },
       }),
       then: (resolve: (value: { data: any[]; error: null }) => void) => {
         resolve({ data: [], error: null });
@@ -51,6 +62,7 @@ vi.mock("./supabase", () => {
 beforeEach(() => {
   calls.eq = [];
   calls.upsert = [];
+  db.deleted = [];
 });
 
 describe("repo", () => {
@@ -60,6 +72,17 @@ describe("repo", () => {
     expect(calls.eq).toEqual([
       ["sessions", "user_id", "me"],
       ["plans", "user_id", "me"],
+    ]);
+  });
+
+  it("single plan and session lookups are scoped to the signed-in user", async () => {
+    await getPlan("p1");
+    await getSession("s1");
+    expect(calls.eq).toEqual([
+      ["plans", "id", "p1"],
+      ["plans", "user_id", "me"],
+      ["sessions", "id", "s1"],
+      ["sessions", "user_id", "me"],
     ]);
   });
 
@@ -84,6 +107,12 @@ describe("repo", () => {
       row: { id: "p", user_id: "c1", trainer_id: "me" },
     });
     expect(calls.upsert[0].row.data).not.toHaveProperty("trainerId");
+  });
+
+  it("deleteClientPlan fails when nothing was deleted (e.g. the coaching just ended)", async () => {
+    await expect(deleteClientPlan("c1", "p")).rejects.toThrow();
+    db.deleted = [{ id: "p" }];
+    await expect(deleteClientPlan("c1", "p")).resolves.toBeUndefined();
   });
 
   it("planFromRow exposes the trainer", () => {

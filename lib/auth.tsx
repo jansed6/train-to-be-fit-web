@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session } from "@supabase/supabase-js";
+import { mutate } from "swr";
 import { supabase } from "./supabase";
 
 interface AuthState {
@@ -26,7 +27,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(data.session);
       setLoading(false);
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      if (event === "SIGNED_OUT") {
+        // Drop the previous account's cached plans, sessions and coachings so
+        // the next one signing in on this browser never sees them.
+        void mutate(() => true, undefined, { revalidate: false });
+      }
       setSession(s);
     });
     return () => sub.subscription.unsubscribe();
