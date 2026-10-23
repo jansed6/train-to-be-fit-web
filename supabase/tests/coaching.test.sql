@@ -6,9 +6,12 @@
 -- Plans:    P  = aaaaaaaa-… the plan T builds for C
 --           O  = bbbbbbbb-… C's own plan
 --           X  = cccccccc-… a plan T builds for C and deletes again
+--           D  = dddddddd-… S's own plan
+--           E  = eeeeeeee-… the plan T builds for C in their second coaching
 -- Coaching ids returned by invite_client are kept in the settings test.tc
--- (T and C), test.t2c (T2 and C), test.tc2 (T's second invite to C) and
--- test.self (T's invite to the email he then switches to).
+-- (T and C), test.t2c (T2 and C), test.tc3 (T and C again, ended by T),
+-- test.tc2 (T's invite to C that he cancels) and test.self (T's invite to the
+-- email he then switches to).
 
 \o /dev/null
 
@@ -19,6 +22,13 @@ insert into auth.users (id, email) values
   ('44444444-4444-4444-4444-444444444444', 'trainer2@x.test');
 
 set role authenticated;
+
+-- S has a plan and a session that no trainer may reach.
+select tests.login('33333333-3333-3333-3333-333333333333', 'stranger@x.test');
+insert into public.plans (id, user_id, data)
+  values ('dddddddd-dddd-dddd-dddd-dddddddddddd', '33333333-3333-3333-3333-333333333333', '{"name": "S own plan"}');
+insert into public.sessions (user_id, data)
+  values ('33333333-3333-3333-3333-333333333333', '{"name": "S session"}');
 
 -- 1. Invite matching ---------------------------------------------------------
 
@@ -149,6 +159,29 @@ begin
 end
 $$;
 
+-- Being C's trainer gives T nothing of anyone else.
+do $$
+begin
+  assert (select count(*) from public.plans where user_id = '33333333-3333-3333-3333-333333333333') = 0,
+    '4: the active trainer of C sees no plans of S';
+  assert (select count(*) from public.sessions where user_id = '33333333-3333-3333-3333-333333333333') = 0,
+    '4: the active trainer of C sees no sessions of S';
+end
+$$;
+select tests.expect_error($$insert into public.plans (user_id, trainer_id, data)
+  values ('33333333-3333-3333-3333-333333333333', '11111111-1111-1111-1111-111111111111', '{}')$$,
+  '42501', '4: the active trainer of C cannot create plans for S');
+
+-- An active coaching can only be ended, not cancelled.
+select tests.expect_error($$select public.cancel_invite(current_setting('test.tc')::uuid)$$,
+  'invite_not_found', '4: T cannot cancel an active coaching');
+do $$
+begin
+  assert (select status from public.coachings where id = current_setting('test.tc')::uuid) = 'active',
+    '4: the coaching stays active';
+end
+$$;
+
 select tests.login('33333333-3333-3333-3333-333333333333', 'stranger@x.test');
 do $$
 begin
@@ -213,6 +246,10 @@ begin
   assert n = 1, '5: T deletes a plan he built for C';
 end
 $$;
+-- A plan T writes is always stamped with T, so ending the coaching releases it.
+select tests.expect_error($$insert into public.plans (user_id, trainer_id, data)
+  values ('22222222-2222-2222-2222-222222222222', '44444444-4444-4444-4444-444444444444', '{}')$$,
+  '42501', '5: T cannot create a plan for C in another trainer''s name');
 
 -- 6. The trainer can't write sessions ----------------------------------------
 
@@ -290,6 +327,45 @@ begin
   update public.plans set data = data where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
   get diagnostics n = row_count;
   assert n = 1, '9: C can change the plan T built';
+end
+$$;
+
+-- The trainer can end it too: a second coaching of T and C, ended by T.
+select tests.login('11111111-1111-1111-1111-111111111111', 'trainer@x.test');
+do $$
+begin
+  perform set_config('test.tc3', public.invite_client('zuzka@gmail.com')::text, false);
+end
+$$;
+select tests.login('22222222-2222-2222-2222-222222222222', 'zuzka@gmail.com');
+select public.respond_to_invite(current_setting('test.tc3')::uuid, true);
+
+select tests.login('11111111-1111-1111-1111-111111111111', 'trainer@x.test');
+insert into public.plans (id, user_id, trainer_id, data)
+  values ('eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee', '22222222-2222-2222-2222-222222222222',
+          '11111111-1111-1111-1111-111111111111', '{"name": "From T, second coaching"}');
+select public.end_coaching(current_setting('test.tc3')::uuid);
+do $$
+begin
+  assert (select count(*) from public.sessions where user_id = '22222222-2222-2222-2222-222222222222') = 0,
+    '9: after ending it himself, T sees no sessions of C';
+  assert (select count(*) from public.plans where user_id = '22222222-2222-2222-2222-222222222222') = 0,
+    '9: after ending it himself, T sees no plans of C';
+end
+$$;
+
+select tests.login('22222222-2222-2222-2222-222222222222', 'zuzka@gmail.com');
+do $$
+declare
+  n int;
+begin
+  assert (select status from public.coachings where id = current_setting('test.tc3')::uuid) = 'ended',
+    '9: the trainer ended the coaching';
+  assert (select trainer_id is null from public.plans where id = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'),
+    '9: the plan T built in the coaching he ended is now C''s own';
+  update public.plans set data = data where id = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
+  get diagnostics n = row_count;
+  assert n = 1, '9: C can change the plan T built in the coaching he ended';
 end
 $$;
 
