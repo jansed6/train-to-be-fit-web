@@ -16,6 +16,11 @@
   --border: rgba(0, 0, 0, 0.07);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px -14px rgba(0, 0, 0, 0.14);
   --glow: rgba(255, 122, 27, 0.1);
+  /* plan status: met (ok) / skipped, added, below target (warn). Text contrast
+     >= 4.5:1 on --surface, --surface-2 and --warn-bg. */
+  --ok: #15763a;
+  --warn: #b93e0b;
+  --warn-bg: #ffedd5;
   /* body map: worked muscles in red on a grey figure */
   --muscle: #e0322b;
   --map-gap: #a7a7b0;
@@ -34,6 +39,9 @@
     --border: rgba(255, 255, 255, 0.08);
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 40px -18px rgba(0, 0, 0, 0.7);
     --glow: rgba(255, 122, 27, 0.18);
+    --ok: #4ade80;
+    --warn: #fb923c;
+    --warn-bg: #3a2412;
     --muscle: #ff4b3e;
     --map-gap: #1f1f25;
     --map-body: #45454f;

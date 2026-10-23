@@ -1,0 +1,101 @@
+<style>
+  .phones { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+  .phone { width: 320px; background: #f6f6f7; border-radius: 28px; padding: 18px 14px 22px; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 18px 40px -18px rgba(0,0,0,.25); color: #17171a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; }
+  .phone h4 { margin: 0 0 2px; font-size: 20px; font-weight: 700; }
+  .ph-sub { color: #6b6b74; font-size: 12px; margin-bottom: 14px; }
+  .back { color: #ff7a1b; font-size: 13px; margin-bottom: 8px; }
+  .card { background: #fff; border-radius: 16px; padding: 12px; margin-top: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+  .ex-name { font-weight: 600; }
+  .ex-sub { color: #6b6b74; font-size: 11px; margin: 2px 0 8px; }
+  .fields { display: flex; gap: 6px; }
+  .f { flex: 1; }
+  .f label { display: block; font-size: 10px; color: #6b6b74; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .04em; }
+  .inp { background: #ededf0; border-radius: 9px; padding: 7px 8px; font-size: 13px; }
+  .inp.accent { outline: 2px solid #ff7a1b; background: #fff4ea; }
+  .setgrid { display: grid; grid-template-columns: 34px 1fr 1fr; gap: 5px 6px; align-items: center; }
+  .setgrid .h { font-size: 10px; color: #6b6b74; text-transform: uppercase; letter-spacing: .04em; }
+  .setno { color: #6b6b74; font-size: 12px; }
+  .addset { color: #ff7a1b; font-size: 12px; margin-top: 6px; }
+  .badge { display: inline-block; background: #fff4ea; color: #b54708; font-size: 11px; font-weight: 600; border-radius: 6px; padding: 2px 6px; margin-left: 4px; }
+  .note { color: #6b6b74; font-size: 12px; margin-top: 10px; }
+  .phone-wrap h3 { margin: 0 0 10px; }
+  .lrow { display: grid; grid-template-columns: 28px 1fr 1fr 34px; gap: 6px; align-items: center; margin-top: 6px; }
+  .tgt { color: #6b6b74; font-size: 11px; }
+  .check { width: 28px; height: 28px; border-radius: 9px; background: #ededf0; }
+  .pref { color: #9a9aa6; }
+</style>
+
+<h2>Ako nastavíš váhy v pláne pre manželku</h2>
+<p class="subtitle">Texty sú po anglicky ako zvyšok aplikácie. A a B sú dva spôsoby, ako zadať odporúčanú váhu. Vpravo je, čo potom uvidí ona pri tréningu.</p>
+
+<div class="phones">
+
+  <div class="phone-wrap option" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer">
+    <h3>A · Jedna váha na cvik</h3>
+    <div class="phone">
+      <div class="back">‹ Manželka</div>
+      <h4>Day B</h4>
+      <div class="ph-sub">Plan for Manželka</div>
+
+      <div class="card">
+        <div class="ex-name">Rumunský mŕtvy ťah</div>
+        <div class="ex-sub">hamstrings, glutes, lower back</div>
+        <div class="fields">
+          <div class="f"><label>Sets</label><div class="inp">3</div></div>
+          <div class="f"><label>Reps</label><div class="inp">10</div></div>
+          <div class="f"><label>Weight</label><div class="inp accent">25 kg</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ex-name">Výpady</div>
+        <div class="ex-sub">quads, glutes</div>
+        <div class="fields">
+          <div class="f"><label>Sets</label><div class="inp">3</div></div>
+          <div class="f"><label>Reps</label><div class="inp">12</div></div>
+          <div class="f"><label>Weight</label><div class="inp accent">8 kg</div></div>
+        </div>
+      </div>
+      <div class="note">Všetky série majú rovnakú váhu. Rýchle na vyplnenie.</div>
+    </div>
+  </div>
+
+  <div class="phone-wrap option" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer">
+    <h3>B · Váha pre každú sériu</h3>
+    <div class="phone">
+      <div class="back">‹ Manželka</div>
+      <h4>Day B</h4>
+      <div class="ph-sub">Plan for Manželka</div>
+
+      <div class="card">
+        <div class="ex-name">Rumunský mŕtvy ťah</div>
+        <div class="ex-sub">hamstrings, glutes, lower back</div>
+        <div class="setgrid">
+          <div class="h">Set</div><div class="h">Reps</div><div class="h">Weight</div>
+          <div class="setno">1</div><div class="inp">12</div><div class="inp accent">20 kg</div>
+          <div class="setno">2</div><div class="inp">10</div><div class="inp accent">25 kg</div>
+          <div class="setno">3</div><div class="inp">8</div><div class="inp accent">27,5 kg</div>
+        </div>
+        <div class="addset">+ Add set</div>
+      </div>
+      <div class="note">Dá sa nastaviť pyramída alebo rozcvičovacia séria. Viac klikania.</div>
+    </div>
+  </div>
+
+  <div class="phone-wrap">
+    <h3>Čo uvidí ona pri tréningu</h3>
+    <div class="phone">
+      <div class="back">‹ Home</div>
+      <h4>Day B</h4>
+      <div class="ph-sub">from your trainer</div>
+
+      <div class="card">
+        <div class="ex-name">Rumunský mŕtvy ťah <span class="badge">Target 3 × 10 · 25 kg</span></div>
+        <div class="lrow"><div class="setno">1</div><div class="inp pref">25 kg</div><div class="inp pref">10</div><div class="check"></div></div>
+        <div class="lrow"><div class="setno">2</div><div class="inp pref">25 kg</div><div class="inp pref">10</div><div class="check"></div></div>
+        <div class="lrow"><div class="setno">3</div><div class="inp pref">25 kg</div><div class="inp pref">10</div><div class="check"></div></div>
+      </div>
+      <div class="note">Polia sú vopred vyplnené tvojou odporúčanou váhou a opakovaniami (sivé). Ona ich len potvrdí, alebo prepíše, čo naozaj zvládla.</div>
+    </div>
+  </div>
+
+</div>

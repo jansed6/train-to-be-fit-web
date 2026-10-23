@@ -15,6 +15,8 @@ export default function EditPlanPage({ params }: { params: { id: string } }) {
         <p className="text-muted">Loading…</p>
       ) : plan === null ? (
         <p className="text-muted">Plan not found.</p>
+      ) : plan.trainerId ? (
+        <p className="text-muted">This plan is from your trainer, so only they can change it.</p>
       ) : (
         <PlanEditor initial={plan} />
       )}

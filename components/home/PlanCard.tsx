@@ -7,27 +7,36 @@ import { deletePlan } from "@/lib/repo";
 import type { Plan } from "@/lib/types";
 
 export function PlanCard({ plan }: { plan: Plan }) {
+  const isTrainerPlan = !!plan.trainerId;
+
   return (
     <Card>
       <div className="mb-2.5 flex items-center justify-between gap-2">
-        <span className="font-bold">{plan.name}</span>
-        <div className="flex items-center gap-1">
-          <Link
-            href={`/plans/${plan.id}`}
-            className={buttonClass({ variant: "ghost", size: "sm" })}
-          >
-            Edit
-          </Link>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => {
-              if (confirm(`Delete "${plan.name}"?`)) deletePlan(plan.id);
-            }}
-          >
-            Delete
-          </Button>
+        <div className="flex items-center gap-2">
+          <span className="font-bold">{plan.name}</span>
+          {isTrainerPlan && (
+            <span className="text-sm text-muted">From your trainer</span>
+          )}
         </div>
+        {!isTrainerPlan && (
+          <div className="flex items-center gap-1">
+            <Link
+              href={`/plans/${plan.id}`}
+              className={buttonClass({ variant: "ghost", size: "sm" })}
+            >
+              Edit
+            </Link>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => {
+                if (confirm(`Delete "${plan.name}"?`)) deletePlan(plan.id);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-2.5">

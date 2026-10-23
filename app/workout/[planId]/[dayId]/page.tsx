@@ -12,7 +12,8 @@ import { UndoToast } from "@/components/workout/UndoToast";
 import { RestBar } from "@/components/workout/RestBar";
 import { ExercisePicker } from "@/components/plan/ExercisePicker";
 import { ExerciseSheet } from "@/components/muscles/ExerciseSheet";
-import { useActiveWorkout, type ActiveExercise } from "@/lib/useActiveWorkout";
+import { useActiveWorkout } from "@/lib/useActiveWorkout";
+import { uncheckedSetCount, type ActiveExercise } from "@/lib/workoutRows";
 
 const DEFAULT_REST_SECONDS = 90;
 
@@ -75,6 +76,13 @@ export default function WorkoutPage({
   }
 
   async function finish() {
+    const unticked = uncheckedSetCount(exercises);
+    if (unticked > 0) {
+      const confirmed = window.confirm(
+        `${unticked} ${unticked === 1 ? "set isn't" : "sets aren't"} ticked and won't be saved. Finish anyway?`
+      );
+      if (!confirmed) return;
+    }
     // Guard synchronously so a fast double-tap can't save the workout twice.
     if (finishingRef.current) return;
     finishingRef.current = true;

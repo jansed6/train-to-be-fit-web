@@ -2,6 +2,13 @@
 // shape used in the UI) so the local v1 needs no joins; a future Supabase backend
 // can map these to relational tables or JSONB.
 
+export interface SetTarget {
+  /** Rep target kept as text so ranges like "8-10" survive. */
+  reps: string;
+  /** Recommended weight; absent = no weight target. */
+  weightKg?: number;
+}
+
 export interface Exercise {
   id: string;
   name: string;
@@ -10,6 +17,8 @@ export interface Exercise {
   reps: string;
   /** Optional link to a catalogue exercise (for muscles / future how-to). */
   catalogId?: string;
+  /** Per-set rep and weight targets. */
+  targets?: SetTarget[];
 }
 
 export interface PlanDay {
@@ -23,9 +32,14 @@ export interface Plan {
   name: string;
   createdAt: number; // epoch ms
   days: PlanDay[];
+  /** Filled from plans.trainer_id, never stored in data. */
+  trainerId?: string;
 }
 
 export interface LoggedSet {
+  /** 1-based number of the set's row in the workout. Unticked sets aren't saved,
+   *  so numbers can have gaps (2, 3 when set 1 wasn't done); it pairs the set
+   *  with its planned set. Older sessions have contiguous numbers 1..n. */
   setNumber: number;
   weightKg: number;
   reps: number;
@@ -37,6 +51,10 @@ export interface SessionExercise {
   /** Optional catalogue link, so history follows the movement across renames. */
   catalogId?: string;
   sets: LoggedSet[];
+  /** Per-set rep and weight targets. */
+  targets?: SetTarget[];
+  /** True if this exercise was added during the workout. */
+  added?: boolean;
 }
 
 export interface WorkoutSession {
@@ -45,4 +63,8 @@ export interface WorkoutSession {
   planDayName: string;
   durationSeconds: number;
   exercises: SessionExercise[];
+  /** The plan this session was started from. */
+  planId?: string;
+  /** The day ID within that plan. */
+  dayId?: string;
 }

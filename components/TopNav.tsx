@@ -9,7 +9,9 @@ import { signOut } from "@/lib/auth";
 /** Desktop top navigation (hidden on mobile, where the bottom NavBar is used). */
 export function TopNav() {
   const path = usePathname() ?? "/";
+  const clientsActive = path.startsWith("/clients");
   const historyActive = path.startsWith("/history");
+  const homeActive = !clientsActive && !historyActive;
 
   return (
     <header className="hidden border-b border-hairline bg-surface md:block">
@@ -19,11 +21,14 @@ export function TopNav() {
           <span className="text-base font-extrabold">Train to be fit</span>
         </Link>
         <nav className="flex items-center gap-1">
-          <TopLink href="/" active={!historyActive}>
+          <TopLink href="/" active={homeActive}>
             Home
           </TopLink>
           <TopLink href="/history" active={historyActive}>
             History
+          </TopLink>
+          <TopLink href="/clients" active={clientsActive}>
+            Clients
           </TopLink>
         </nav>
         <button

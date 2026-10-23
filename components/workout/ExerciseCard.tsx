@@ -3,11 +3,12 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SetRow } from "./SetRow";
 import { findCatalogExercise } from "@/lib/exerciseCatalog";
+import { formatTargets } from "@/lib/planTargets";
 import { cn } from "@/lib/cn";
 import { BodyMapPair } from "@/components/muscles/BodyMap";
 import { useBodyType } from "@/lib/useBodyType";
 import { levelsFor, musclesFor } from "@/lib/muscles";
-import { isValidRow, type ActiveExercise, type SetRow as SetRowData } from "@/lib/useActiveWorkout";
+import { isValidRow, type ActiveExercise, type SetRow as SetRowData } from "@/lib/workoutRows";
 
 export function ExerciseCard({
   exercise,
@@ -36,7 +37,7 @@ export function ExerciseCard({
           <div className="text-[20px] font-bold leading-tight">{exercise.name}</div>
           {catalog && <div className="text-[15px] font-medium text-muted">{catalog.sk}</div>}
           <div className="mt-0.5 text-sm text-muted">
-            Target: {exercise.targetSets}×{exercise.targetReps || "—"}
+            Target: {formatTargets(exercise.targets)}
             {catalog ? ` · ${catalog.muscles.join(", ")}` : ""}
           </div>
         </div>

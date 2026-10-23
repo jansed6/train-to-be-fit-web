@@ -7,10 +7,12 @@ import { buttonClass } from "@/components/ui/Button";
 import { PlanCard } from "@/components/home/PlanCard";
 import { StarterPlanCard } from "@/components/StarterPlanCard";
 import { MoodBear } from "@/components/MoodBear";
+import { InviteBanner } from "@/components/clients/InviteBanner";
 import { starterPlans } from "@/lib/starterPlans";
 import { usePlans, useSessions } from "@/lib/hooks";
 import { signOut } from "@/lib/auth";
 import { totalVolume } from "@/lib/format";
+import { startOfWeekMs } from "@/lib/clientStats";
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -19,19 +21,11 @@ function greeting(): string {
   return "Evening session?";
 }
 
-function startOfWeekMs(): number {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  const mondayOffset = (d.getDay() + 6) % 7; // Monday = 0
-  d.setDate(d.getDate() - mondayOffset);
-  return d.getTime();
-}
-
 export default function HomePage() {
   const plans = usePlans();
   const sessions = useSessions();
 
-  const weekStart = startOfWeekMs();
+  const weekStart = startOfWeekMs(new Date());
   const weekSessions = (sessions ?? []).filter((s) => s.date >= weekStart);
   const weekVolume = Math.round(
     weekSessions.reduce((sum, s) => sum + totalVolume(s), 0),
@@ -55,6 +49,8 @@ export default function HomePage() {
           Sign out
         </button>
       </div>
+
+      <InviteBanner />
 
       <div className="mb-6 grid grid-cols-2 gap-3">
         <StatTile value={weekSessions.length} label="this week" />

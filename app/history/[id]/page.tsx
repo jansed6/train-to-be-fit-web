@@ -81,17 +81,21 @@ export default function SessionDetailPage({
             {session.exercises.map((ex) => (
               <Card key={ex.id}>
                 <div className="mb-2 font-bold">{ex.name}</div>
-                {ex.sets.map((set) => (
-                  <div
-                    key={set.setNumber}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-muted">Set {set.setNumber}</span>
-                    <span className="font-semibold tabular-nums">
-                      {formatWeight(set.weightKg)} kg × {set.reps}
-                    </span>
-                  </div>
-                ))}
+                {ex.sets.length === 0 ? (
+                  <div className="text-muted">Skipped</div>
+                ) : (
+                  ex.sets.map((set) => (
+                    <div
+                      key={set.setNumber}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="text-muted">Set {set.setNumber}</span>
+                      <span className="font-semibold tabular-nums">
+                        {formatWeight(set.weightKg)} kg × {set.reps}
+                      </span>
+                    </div>
+                  ))
+                )}
               </Card>
             ))}
           </div>

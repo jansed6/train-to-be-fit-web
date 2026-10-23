@@ -16,6 +16,9 @@ export default {
         content: "var(--text)",
         muted: "var(--text-secondary)",
         hairline: "var(--border)",
+        ok: "var(--ok)",
+        warn: "var(--warn)",
+        "warn-bg": "var(--warn-bg)",
       },
       borderRadius: {
         card: "18px",
