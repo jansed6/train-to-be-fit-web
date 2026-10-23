@@ -37,6 +37,9 @@ export interface Plan {
 }
 
 export interface LoggedSet {
+  /** 1-based number of the set's row in the workout. Unticked sets aren't saved,
+   *  so numbers can have gaps (2, 3 when set 1 wasn't done); it pairs the set
+   *  with its planned set. Older sessions have contiguous numbers 1..n. */
   setNumber: number;
   weightKg: number;
   reps: number;

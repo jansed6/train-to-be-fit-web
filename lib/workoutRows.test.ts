@@ -3,10 +3,11 @@ import {
   prefilledRows,
   buildSession,
   uncheckedSetCount,
+  weightsFromSessions,
   type WeightsByKey,
 } from "./workoutRows";
 import { setTargets } from "./planTargets";
-import type { Exercise } from "./types";
+import type { Exercise, LoggedSet, WorkoutSession } from "./types";
 
 const weights: WeightsByKey = new Map([["id:squat", [80, 85]]]);
 
@@ -25,6 +26,39 @@ describe("prefilledRows", () => {
   });
   it("leaves reps empty when the target has no number", () => {
     expect(prefilledRows({ name: "Plank", sets: 1, reps: "AMRAP" }, new Map())[0].reps).toBe("");
+  });
+});
+
+describe("weightsFromSessions", () => {
+  const sessionWith = (sets: LoggedSet[]): WorkoutSession => ({
+    id: "s", date: 0, planDayName: "A", durationSeconds: 0,
+    exercises: [{ id: "e", name: "Bench", catalogId: "bench", sets }],
+  });
+
+  it("places last time's weights by set number, so a skipped set doesn't shift them", () => {
+    const w = weightsFromSessions([sessionWith([
+      { setNumber: 2, weightKg: 25, reps: 10 },
+      { setNumber: 3, weightKg: 27.5, reps: 8 },
+    ])]);
+    const rows = prefilledRows({ name: "Bench", catalogId: "bench", sets: 3, reps: "10" }, w);
+    // Set 1 had no weight last time: it takes the nearest logged one (set 2).
+    expect(rows.map((r) => r.weight)).toEqual(["25", "25", "27.5"]);
+  });
+  it("fills a middle gap from the set before it and extends past the last set", () => {
+    const w = weightsFromSessions([sessionWith([
+      { setNumber: 1, weightKg: 20, reps: 12 },
+      { setNumber: 3, weightKg: 30, reps: 8 },
+    ])]);
+    const rows = prefilledRows({ name: "Bench", catalogId: "bench", sets: 4, reps: "10" }, w);
+    expect(rows.map((r) => r.weight)).toEqual(["20", "20", "30", "30"]);
+  });
+  it("reads sessions saved with packed set numbers as before", () => {
+    const w = weightsFromSessions([sessionWith([
+      { setNumber: 1, weightKg: 60, reps: 5 },
+      { setNumber: 2, weightKg: 62.5, reps: 5 },
+    ])]);
+    expect(prefilledRows({ name: "Bench", catalogId: "bench", sets: 3, reps: "5" }, w).map((r) => r.weight))
+      .toEqual(["60", "62.5", "62.5"]);
   });
 });
 
@@ -57,6 +91,21 @@ describe("buildSession", () => {
       { id: "p1", name: "Squat", planned: true, targets: setTargets(planned[0]), rows: [row("30", "10", true)] },
     ] })!;
     expect(s.exercises).toHaveLength(1);
+  });
+  it("keeps each ticked set's original set number when an earlier or middle row is unticked", () => {
+    const s = buildSession({ ...base, planned: [], exercises: [
+      { id: "x", name: "Bench", planned: false, targets: [], rows: [
+        row("20", "12", false), row("25", "10", true), row("27,5", "8", true),
+      ] },
+      { id: "y", name: "Row", planned: false, targets: [], rows: [
+        row("40", "10", true), row("40", "10", false), row("40", "9", true),
+      ] },
+    ] })!;
+    expect(s.exercises[0].sets).toEqual([
+      { setNumber: 2, weightKg: 25, reps: 10 },
+      { setNumber: 3, weightKg: 27.5, reps: 8 },
+    ]);
+    expect(s.exercises[1].sets.map((x) => x.setNumber)).toEqual([1, 3]);
   });
   it("returns null when nothing was ticked", () => {
     expect(buildSession({ ...base, exercises: [

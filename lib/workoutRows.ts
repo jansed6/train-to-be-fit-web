@@ -20,7 +20,9 @@ export interface ActiveExercise {
   rows: SetRow[];
 }
 
-export type WeightsByKey = Map<string, number[]>;
+/** Last time's weight per set, indexed by set number - 1. A set that wasn't
+ *  ticked last time leaves a gap (undefined) instead of shifting the rest. */
+export type WeightsByKey = Map<string, (number | undefined)[]>;
 
 export function parseWeight(text: string): number | null {
   if (text.trim() === "") return null;
@@ -41,19 +43,40 @@ function keysFor(catalogId: string | undefined, name: string): string[] {
   return catalogId ? ["id:" + catalogId, nameKey] : [nameKey];
 }
 
-/** Builds a weights-by-key map from past sessions. */
+/** Places logged weights by set number, so a gap stays a gap. Falls back to the
+ *  position for a set without a usable number. */
+function weightsBySetNumber(sets: LoggedSet[]): (number | undefined)[] {
+  const weights: (number | undefined)[] = [];
+  sets.forEach((set, i) => {
+    const idx = Number.isInteger(set.setNumber) && set.setNumber >= 1 ? set.setNumber - 1 : i;
+    if (weights[idx] === undefined) weights[idx] = set.weightKg;
+  });
+  return weights;
+}
+
+/** Builds a weights-by-key map from past sessions (newest first: the most recent
+ *  session that logged a movement wins). */
 export function weightsFromSessions(sessions: WorkoutSession[]): WeightsByKey {
   const weightsByKey: WeightsByKey = new Map();
   for (const s of sessions) {
     for (const se of s.exercises) {
       if (se.sets.length === 0) continue;
-      const weights = se.sets.map((x) => x.weightKg);
+      const weights = weightsBySetNumber(se.sets);
       for (const key of keysFor(se.catalogId, se.name)) {
         if (!weightsByKey.has(key)) weightsByKey.set(key, weights);
       }
     }
   }
   return weightsByKey;
+}
+
+/** Last time's weight for set index `i`: that set's weight, else the nearest
+ *  earlier set's, else the first logged one. */
+function lastTimeWeight(weights: (number | undefined)[], i: number): number | undefined {
+  for (let j = Math.min(i, weights.length - 1); j >= 0; j--) {
+    if (weights[j] !== undefined) return weights[j];
+  }
+  return weights.find((w) => w !== undefined);
 }
 
 /** Rows for a fresh exercise: reps and weights from per-set targets, falling back
@@ -63,7 +86,7 @@ export function prefilledRows(
   weightsByKey: WeightsByKey,
 ): SetRow[] {
   const targets = setTargets(ex);
-  let weights: number[] | undefined;
+  let weights: (number | undefined)[] | undefined;
   for (const key of keysFor(ex.catalogId, ex.name)) {
     const found = weightsByKey.get(key);
     if (found) {
@@ -81,14 +104,15 @@ export function prefilledRows(
 
     // Weight decision (first match wins):
     // 1. Target has a weight
-    // 2. Last time's weight for this set index (or last available)
+    // 2. Last time's weight for this set (or the nearest earlier / first logged one)
     // 3. No-load catalogue moves get "0"
     // 4. Otherwise empty
+    const lastTime = weights ? lastTimeWeight(weights, i) : undefined;
     let weight = "";
     if (t.weightKg !== undefined) {
       weight = formatWeight(t.weightKg);
-    } else if (weights) {
-      weight = formatWeight(weights[i] ?? weights[weights.length - 1]);
+    } else if (lastTime !== undefined) {
+      weight = formatWeight(lastTime);
     } else if (noLoad) {
       weight = "0";
     }
@@ -130,13 +154,13 @@ export function buildSession(input: {
 
   // Process exercises in order
   for (const ex of exercises) {
-    const sets: LoggedSet[] = ex.rows
-      .filter((r) => r.done && isValidRow(r))
-      .map((r, idx) => ({
-        setNumber: idx + 1,
-        weightKg: parseWeight(r.weight) ?? 0,
-        reps: parseInt(r.reps, 10),
-      }));
+    // Only ticked sets are saved; each keeps its row's number (not its position
+    // among the ticked ones) so it's compared with the planned set it belongs to.
+    const sets: LoggedSet[] = ex.rows.flatMap((r, idx) =>
+      r.done && isValidRow(r)
+        ? [{ setNumber: idx + 1, weightKg: parseWeight(r.weight) ?? 0, reps: parseInt(r.reps, 10) }]
+        : [],
+    );
 
     if (sets.length > 0) hasAnySets = true;
 

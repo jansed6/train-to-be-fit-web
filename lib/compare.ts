@@ -95,38 +95,37 @@ export function compareSession(session: WorkoutSession): SessionComparison {
 }
 
 /**
- * Compares logged sets with target sets. Set i of the plan is compared with
- * logged set i, up to the longer of the two lists.
+ * Compares logged sets with target sets. A logged set is paired with the planned
+ * set of the same number (setNumber 1 = targets[0]), so a set that wasn't done
+ * doesn't shift the others. Planned sets with no logged set are missing (below);
+ * logged sets past the plan are extras (never below). Result: one entry per
+ * planned set in plan order, then the extras.
+ * Sessions saved before set numbers kept gaps have contiguous numbers 1..n, which
+ * pair the same as by position.
  */
 function compareExerciseSets(loggedSets: LoggedSet[], targets: SetTarget[]): SetComparison[] {
-  const maxLength = Math.max(loggedSets.length, targets.length);
-  const comparisons: SetComparison[] = [];
+  const loggedForTarget: (LoggedSet | undefined)[] = targets.map(() => undefined);
+  const extras: LoggedSet[] = [];
 
-  for (let i = 0; i < maxLength; i++) {
-    const logged = loggedSets[i];
-    const target = targets[i];
-
-    if (!target) {
-      // Extra logged sets beyond the plan are never below
-      comparisons.push({
-        logged,
-        below: false,
-      });
-    } else if (!logged) {
-      // Missing logged set for a planned set
-      comparisons.push({
-        target,
-        below: true,
-      });
+  for (const logged of loggedSets) {
+    const i = logged.setNumber - 1;
+    if (Number.isInteger(i) && i >= 0 && i < targets.length && !loggedForTarget[i]) {
+      loggedForTarget[i] = logged;
     } else {
-      // Compare logged set with target
-      const below = isSetBelowTarget(logged, target);
-      comparisons.push({
-        logged,
-        target,
-        below,
-      });
+      extras.push(logged);
     }
+  }
+
+  const comparisons: SetComparison[] = targets.map((target, i) => {
+    const logged = loggedForTarget[i];
+    // Missing logged set for a planned set
+    if (!logged) return { target, below: true };
+    return { logged, target, below: isSetBelowTarget(logged, target) };
+  });
+
+  // Extra logged sets beyond the plan are never below
+  for (const logged of extras) {
+    comparisons.push({ logged, below: false });
   }
 
   return comparisons;
