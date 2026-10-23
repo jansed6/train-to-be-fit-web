@@ -7,6 +7,7 @@ import { buttonClass } from "@/components/ui/Button";
 import { PlanCard } from "@/components/home/PlanCard";
 import { StarterPlanCard } from "@/components/StarterPlanCard";
 import { MoodBear } from "@/components/MoodBear";
+import { InviteBanner } from "@/components/clients/InviteBanner";
 import { starterPlans } from "@/lib/starterPlans";
 import { usePlans, useSessions } from "@/lib/hooks";
 import { signOut } from "@/lib/auth";
@@ -55,6 +56,8 @@ export default function HomePage() {
           Sign out
         </button>
       </div>
+
+      <InviteBanner />
 
       <div className="mb-6 grid grid-cols-2 gap-3">
         <StatTile value={weekSessions.length} label="this week" />

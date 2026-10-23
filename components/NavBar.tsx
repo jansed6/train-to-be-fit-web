@@ -6,15 +6,20 @@ import { cn } from "@/lib/cn";
 
 export function NavBar() {
   const path = usePathname() ?? "/";
-  const historyActive = path.startsWith("/history");
+  const clientsActive = path.startsWith("/clients");
+  const historyActive = path === "/history";
+  const homeActive = !clientsActive && !historyActive;
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-10 flex justify-center gap-2 border-t border-hairline bg-surface px-4 pb-[max(10px,env(safe-area-inset-bottom))] pt-2.5 md:hidden">
-      <NavLink href="/" active={!historyActive}>
+      <NavLink href="/" active={homeActive}>
         Home
       </NavLink>
       <NavLink href="/history" active={historyActive}>
         History
+      </NavLink>
+      <NavLink href="/clients" active={clientsActive}>
+        Clients
       </NavLink>
     </nav>
   );
