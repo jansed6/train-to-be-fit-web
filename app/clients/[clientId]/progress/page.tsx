@@ -19,8 +19,10 @@ export default function ClientProgressPage({
         {client ? clientLabel(client) : "Client"}
       </BackLink>
       <PageTitle>Exercise progress</PageTitle>
-      {sessions === undefined ? (
+      {client === undefined || sessions === undefined ? (
         <p className="text-muted">Loading…</p>
+      ) : client === null ? (
+        <p className="text-muted">Client not found.</p>
       ) : sessions.length === 0 ? (
         <p className="text-muted">No workouts yet.</p>
       ) : (

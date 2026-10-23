@@ -5,6 +5,7 @@ import { Container, PageTitle, BackLink } from "@/components/ui/layout";
 import { ComparisonCard } from "@/components/clients/ComparisonCard";
 import { useClient, useClientSessions } from "@/lib/hooks";
 import { compareSession } from "@/lib/compare";
+import { clientLabel } from "@/lib/coaching";
 import { formatDate, formatDuration } from "@/lib/format";
 
 export default function ClientWorkoutDetailPage() {
@@ -36,7 +37,7 @@ export default function ClientWorkoutDetailPage() {
   if (!session) {
     return (
       <Container>
-        <BackLink href={`/clients/${clientId}`}>{client.clientName}</BackLink>
+        <BackLink href={`/clients/${clientId}`}>{clientLabel(client)}</BackLink>
         <div>Workout not found.</div>
       </Container>
     );
@@ -46,7 +47,7 @@ export default function ClientWorkoutDetailPage() {
 
   return (
     <Container>
-      <BackLink href={`/clients/${clientId}`}>{client.clientName}</BackLink>
+      <BackLink href={`/clients/${clientId}`}>{clientLabel(client)}</BackLink>
       <PageTitle>{session.planDayName}</PageTitle>
       <div className="mb-4 text-sm text-muted">
         {formatDate(session.date)} · {formatDuration(session.durationSeconds)}

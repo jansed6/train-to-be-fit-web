@@ -10,7 +10,7 @@ import { signOut } from "@/lib/auth";
 export function TopNav() {
   const path = usePathname() ?? "/";
   const clientsActive = path.startsWith("/clients");
-  const historyActive = path === "/history";
+  const historyActive = path.startsWith("/history");
   const homeActive = !clientsActive && !historyActive;
 
   return (

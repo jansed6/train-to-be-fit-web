@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 export function NavBar() {
   const path = usePathname() ?? "/";
   const clientsActive = path.startsWith("/clients");
-  const historyActive = path === "/history";
+  const historyActive = path.startsWith("/history");
   const homeActive = !clientsActive && !historyActive;
 
   return (

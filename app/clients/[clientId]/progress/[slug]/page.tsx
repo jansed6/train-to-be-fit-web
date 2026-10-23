@@ -21,8 +21,10 @@ export default function ClientProgressDetailPage({
       <BackLink href={`/clients/${params.clientId}/progress`}>
         {client ? clientLabel(client) : "Client"}
       </BackLink>
-      {sessions === undefined ? (
+      {client === undefined || sessions === undefined ? (
         <p className="text-muted">Loading…</p>
+      ) : client === null ? (
+        <p className="text-muted">Client not found.</p>
       ) : !summary ? (
         <p className="text-muted">No data for this exercise.</p>
       ) : (

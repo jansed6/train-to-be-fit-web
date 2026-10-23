@@ -12,8 +12,11 @@ export function TargetRows({
   targets: SetTarget[];
   onChange: (targets: SetTarget[]) => void;
 }) {
-  // Local state for weight inputs to preserve typing state like "27." or "27,"
-  const [weightTexts, setWeightTexts] = useState<string[]>([]);
+  // Local state for weight inputs to preserve typing state like "27." or "27,".
+  // Initialised from the props so the first render already shows the weights.
+  const [weightTexts, setWeightTexts] = useState<string[]>(() =>
+    targets.map((t) => (t.weightKg !== undefined ? formatWeight(t.weightKg) : "")),
+  );
 
   // Resync weight texts only when prop values differ from what current text parses to
   useEffect(() => {
@@ -89,6 +92,7 @@ export function TargetRows({
             />
             <Input
               placeholder="25"
+              inputMode="decimal"
               value={weightTexts[i] ?? ""}
               onChange={(e) => updateWeight(i, e.target.value)}
             />
