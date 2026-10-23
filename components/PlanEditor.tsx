@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { savePlan, uid } from "@/lib/repo";
+import { savePlan, saveClientPlan, uid } from "@/lib/repo";
 import { withTargets } from "@/lib/planTargets";
 import { Field, Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -10,7 +10,7 @@ import { DayEditor } from "@/components/plan/DayEditor";
 import type { PickedExercise } from "@/components/plan/ExercisePicker";
 import type { Plan, PlanDay, Exercise } from "@/lib/types";
 
-export function PlanEditor({ initial }: { initial?: Plan }) {
+export function PlanEditor({ initial, clientId }: { initial?: Plan; clientId?: string }) {
   const router = useRouter();
   const [name, setName] = useState(initial?.name ?? "");
   const [days, setDays] = useState<PlanDay[]>(initial?.days ?? []);
@@ -115,8 +115,13 @@ export function PlanEditor({ initial }: { initial?: Plan }) {
       createdAt: initial?.createdAt ?? Date.now(),
       days: cleanedDays,
     };
-    await savePlan(plan);
-    router.push("/");
+    if (clientId) {
+      await saveClientPlan(clientId, plan);
+      router.push(`/clients/${clientId}`);
+    } else {
+      await savePlan(plan);
+      router.push("/");
+    }
   }
 
   return (
