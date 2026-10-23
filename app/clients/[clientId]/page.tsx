@@ -36,7 +36,9 @@ export default function ClientProfilePage({
 
   const now = new Date();
   const weekStart = startOfWeekMs(now);
-  const last30Days = now.getTime() - 30 * 86400000;
+  const last30DaysDate = new Date(now);
+  last30DaysDate.setDate(last30DaysDate.getDate() - 30);
+  const last30Days = last30DaysDate.getTime();
 
   const weekCount = countSince(sessions, weekStart);
   const monthCount = countSince(sessions, last30Days);

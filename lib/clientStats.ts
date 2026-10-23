@@ -35,8 +35,14 @@ export function weekStrip(sessions: WorkoutSession[], now: Date): WeekDay[] {
 
   const days: WeekDay[] = [];
   for (let i = 0; i < 7; i++) {
-    const dayStart = weekStart + i * 86400000; // milliseconds in a day
-    const dayEnd = dayStart + 86400000;
+    // Use Date arithmetic to handle DST correctly
+    const dayStartDate = new Date(weekStart);
+    dayStartDate.setDate(dayStartDate.getDate() + i);
+    const dayStart = dayStartDate.getTime();
+
+    const dayEndDate = new Date(weekStart);
+    dayEndDate.setDate(dayEndDate.getDate() + i + 1);
+    const dayEnd = dayEndDate.getTime();
 
     const daySessions = sessions.filter((s) => s.date >= dayStart && s.date < dayEnd);
     const trained = daySessions.length > 0;

@@ -9,5 +9,8 @@ export default defineConfig({
   },
   test: {
     include: ["lib/**/*.test.ts"],
+    env: {
+      TZ: "Europe/Bratislava",
+    },
   },
 });

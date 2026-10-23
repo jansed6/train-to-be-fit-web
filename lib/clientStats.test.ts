@@ -17,4 +17,10 @@ describe("clientStats", () => {
     expect(strip.map((d) => d.trained)).toEqual([true, false, true, false, false, false, false]);
     expect(strip.map((d) => d.offPlan)).toEqual([false, false, true, false, false, false, false]);
   });
+  it("DST regression: late Sunday session marks Sunday trained", () => {
+    // 25 Oct 2026 is when DST ends in Europe/Bratislava (25-hour day)
+    const lateSunday = new Date(2026, 9, 25, 23, 30).getTime();
+    const strip = weekStrip([s(lateSunday)], wed);
+    expect(strip[6].trained).toBe(true); // Sunday (index 6) should be marked trained
+  });
 });
