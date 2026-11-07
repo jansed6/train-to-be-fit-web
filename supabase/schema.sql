@@ -59,6 +59,30 @@ create unique index if not exists coachings_one_open_per_email
 -- Read only for users (see the policy below); the functions write as owner.
 revoke insert, update, delete, truncate on public.coachings from anon, authenticated;
 
+-- MARK: Trainers
+
+-- Who may add clients: adding one can email an invite to any address, so it is
+-- not open to everyone who signs up. Add a trainer in the Supabase SQL editor:
+--   insert into public.trainers (user_id)
+--     select id from auth.users where email = 'trainer@example.com';
+-- and remove one with `delete from public.trainers where user_id = …`.
+do $$
+begin
+  if to_regclass('public.trainers') is null then
+    create table public.trainers (
+      user_id uuid primary key references auth.users(id) on delete cascade,
+      created_at timestamptz not null default now()
+    );
+    -- Whoever already coaches or invites stays a trainer.
+    insert into public.trainers (user_id)
+      select distinct trainer_id from public.coachings where status in ('pending', 'active');
+  end if;
+end
+$$;
+
+-- Users can only see whether they are a trainer themselves.
+revoke insert, update, delete, truncate on public.trainers from anon, authenticated;
+
 -- MARK: Functions
 
 -- Is the caller the active trainer of this user? Used by the plan and session
@@ -76,8 +100,13 @@ as $$
   );
 $$;
 
--- The caller invites an email to be their client. Never reveals whether an
--- account with that email exists.
+-- New clients (invites, accounts created for them) a trainer may add per day.
+-- app/api/clients applies the same limit (DAILY_CLIENT_LIMIT).
+create or replace function public.daily_client_limit() returns int
+language sql immutable as $$ select 20 $$;
+
+-- The caller, a trainer, invites an email to be their client. Never reveals
+-- whether an account with that email exists.
 create or replace function public.invite_client(p_email text, p_name text default null)
 returns uuid
 language plpgsql
@@ -91,8 +120,16 @@ begin
   if v_email is null or v_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
     raise exception 'invalid_email';
   end if;
+  if not exists (select 1 from public.trainers where user_id = auth.uid()) then
+    raise exception 'not_trainer';
+  end if;
   if v_email = lower(auth.jwt() ->> 'email') then
     raise exception 'cannot_invite_self';
+  end if;
+  if (select count(*) from public.coachings
+      where trainer_id = auth.uid() and created_at > now() - interval '1 day')
+     >= public.daily_client_limit() then
+    raise exception 'rate_limited';
   end if;
   begin
     insert into public.coachings (trainer_id, trainer_email, client_email, client_name)
@@ -200,6 +237,12 @@ grant execute on function public.end_coaching(uuid) to authenticated;
 alter table public.plans enable row level security;
 alter table public.sessions enable row level security;
 alter table public.coachings enable row level security;
+alter table public.trainers enable row level security;
+
+drop policy if exists "read own trainer row" on public.trainers;
+create policy "read own trainer row" on public.trainers
+  for select to authenticated
+  using (user_id = auth.uid());
 
 -- Replaced by the policies below.
 drop policy if exists "own plans" on public.plans;

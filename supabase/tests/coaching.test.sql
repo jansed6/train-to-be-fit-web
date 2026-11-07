@@ -21,6 +21,11 @@ insert into auth.users (id, email) values
   ('33333333-3333-3333-3333-333333333333', 'stranger@x.test'),
   ('44444444-4444-4444-4444-444444444444', 'trainer2@x.test');
 
+-- T and T2 are trainers; C and S are not.
+insert into public.trainers (user_id) values
+  ('11111111-1111-1111-1111-111111111111'),
+  ('44444444-4444-4444-4444-444444444444');
+
 set role authenticated;
 
 -- S has a plan and a session that no trainer may reach.
@@ -406,7 +411,41 @@ begin
 end
 $$;
 
--- 11. Anon has no access -----------------------------------------------------
+-- 11. Trainers ---------------------------------------------------------------
+
+-- S is not a trainer: he can't invite, can't make himself one, and sees no
+-- one's trainer row.
+select tests.login('33333333-3333-3333-3333-333333333333', 'stranger@x.test');
+select tests.expect_error($$select public.invite_client('someone@x.test')$$,
+  'not_trainer', '11: S cannot invite without being a trainer');
+select tests.expect_error(
+  $$insert into public.trainers (user_id) values ('33333333-3333-3333-3333-333333333333')$$,
+  '42501', '11: S cannot make himself a trainer');
+do $$
+begin
+  assert (select count(*) from public.trainers) = 0, '11: S sees no trainer rows';
+end
+$$;
+
+select tests.login('11111111-1111-1111-1111-111111111111', 'trainer@x.test');
+do $$
+begin
+  assert (select count(*) from public.trainers) = 1, '11: T sees only his own trainer row';
+end
+$$;
+
+-- A trainer who added the daily limit of clients in the last day must wait.
+reset role;
+insert into public.coachings (trainer_id, trainer_email, client_email, status)
+  select '44444444-4444-4444-4444-444444444444', 'trainer2@x.test',
+         'limit' || n || '@x.test', 'cancelled'
+  from generate_series(1, public.daily_client_limit()) n;
+set role authenticated;
+select tests.login('44444444-4444-4444-4444-444444444444', 'trainer2@x.test');
+select tests.expect_error($$select public.invite_client('one-more@x.test')$$,
+  'rate_limited', '11: T2 cannot add more clients than the daily limit');
+
+-- 12. Anon has no access -----------------------------------------------------
 
 -- A fresh connection, so no JWT claims are set at all.
 \connect
@@ -414,18 +453,19 @@ $$;
 set role anon;
 do $$
 begin
-  assert (select count(*) from public.plans) = 0, '11: anon sees no plans';
-  assert (select count(*) from public.sessions) = 0, '11: anon sees no sessions';
-  assert (select count(*) from public.coachings) = 0, '11: anon sees no coachings';
+  assert (select count(*) from public.plans) = 0, '12: anon sees no plans';
+  assert (select count(*) from public.sessions) = 0, '12: anon sees no sessions';
+  assert (select count(*) from public.coachings) = 0, '12: anon sees no coachings';
+  assert (select count(*) from public.trainers) = 0, '12: anon sees no trainers';
 end
 $$;
 select tests.expect_error($$select public.invite_client('someone@x.test')$$,
-  '42501', '11: anon cannot invite');
+  '42501', '12: anon cannot invite');
 select tests.expect_error($$select public.respond_to_invite(gen_random_uuid(), true)$$,
-  '42501', '11: anon cannot answer invites');
+  '42501', '12: anon cannot answer invites');
 select tests.expect_error($$select public.cancel_invite(gen_random_uuid())$$,
-  '42501', '11: anon cannot cancel invites');
+  '42501', '12: anon cannot cancel invites');
 select tests.expect_error($$select public.end_coaching(gen_random_uuid())$$,
-  '42501', '11: anon cannot end coachings');
+  '42501', '12: anon cannot end coachings');
 select tests.expect_error($$select public.is_active_trainer_of(gen_random_uuid())$$,
-  '42501', '11: anon cannot call is_active_trainer_of');
+  '42501', '12: anon cannot call is_active_trainer_of');

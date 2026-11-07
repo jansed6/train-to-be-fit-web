@@ -54,6 +54,29 @@ current frontend keeps working on it.
 In Supabase → Authentication → Email, keep "Confirm email" enabled — trainer
 invites are matched by the email in the sign-in token.
 
+**Trainers.** Adding a client can email an invite to any address, so only
+users in `public.trainers` can do it (at most 20 new clients a day). The first
+run of the schema makes everyone who already coaches a trainer; add others in
+the SQL editor:
+
+```sql
+insert into public.trainers (user_id)
+  select id from auth.users where email = 'trainer@example.com';
+```
+
+**Supabase settings for production.**
+
+- Custom SMTP (Authentication → Emails → SMTP Settings), e.g. Resend or Brevo,
+  with SPF/DKIM on your domain. Supabase's built-in sender only emails your
+  Supabase team members, 2 emails an hour.
+- Authentication → Email → Minimum password length: 8 (the app asks for 8).
+- If clients only join through a trainer's invite, turn off "Allow new users
+  to sign up" (Authentication → Sign In / Providers): the invite still creates
+  their account. If sign-up stays open, enable CAPTCHA (Attack Protection) —
+  the app would then need the CAPTCHA widget on its sign-up form.
+- Use a dedicated secret key (`sb_secret_…`) for `SUPABASE_SERVICE_ROLE_KEY`,
+  so it can be revoked on its own.
+
 ## Structure
 
 - `app/` — Next.js App Router pages (home, workout, history, progress, plans, sign-in gate)

@@ -5,6 +5,9 @@ import { createClient, type SupabaseClient, type User } from "@supabase/supabase
 // password, so the trainer can build plans before they ever sign in. That
 // takes the service role key, which only this server code sees. Without it the
 // app falls back to plain invites (see addClient in lib/coaching.ts).
+//
+// Because it emails any address, only trainers (public.trainers, granted by
+// hand) may add clients, at most DAILY_CLIENT_LIMIT a day.
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +16,18 @@ const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+// Same as public.daily_client_limit() in supabase/schema.sql.
+const DAILY_CLIENT_LIMIT = 20;
 const NO_SESSION = { auth: { persistSession: false, autoRefreshToken: false } };
 
 function fail(error: string, status = 400) {
   return NextResponse.json({ error }, { status });
+}
+
+/** Logs the details for Vercel's logs; the browser only gets a code. */
+function serverError(what: string, err: unknown) {
+  console.error(`api/clients: ${what}`, err);
+  return fail("server_error", 500);
 }
 
 /** The signed-in user making the request, from their access token. */
@@ -46,9 +57,27 @@ export async function POST(req: NextRequest) {
   if (!EMAIL.test(email)) return fail("invalid_email");
   if (email === me.user.email?.toLowerCase()) return fail("cannot_invite_self");
 
-  // Creates the account, or re-sends the invite while it's still unused.
+  const { data: trainer, error: trainerError } = await admin
+    .from("trainers")
+    .select("user_id")
+    .eq("user_id", me.user.id)
+    .maybeSingle();
+  if (trainerError) return serverError("trainer lookup", trainerError);
+  if (!trainer) return fail("not_trainer", 403);
+
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { count, error: countError } = await admin
+    .from("coachings")
+    .select("id", { count: "exact", head: true })
+    .eq("trainer_id", me.user.id)
+    .gt("created_at", since);
+  if (countError) return serverError("daily count", countError);
+  if ((count ?? 0) >= DAILY_CLIENT_LIMIT) return fail("rate_limited", 429);
+
+  // Creates the account, or re-sends the invite while it's still unused. No
+  // redirectTo: the link goes to the Site URL set in Supabase, never to a
+  // host taken from the request.
   const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: req.headers.get("origin") ?? req.nextUrl.origin,
     data: { name, trainer_email: me.user.email },
   });
   if (error) {
@@ -56,8 +85,9 @@ export async function POST(req: NextRequest) {
       return invitePending(me.token, email, name);
     }
     if (error.code === "over_email_send_rate_limit") return fail("rate_limited", 429);
-    return fail(error.message, 500);
+    return serverError("invite", error);
   }
+  console.info(`api/clients: ${me.user.id} invited a client account`);
 
   const clientId = data.user.id;
   const { data: existing, error: lookupError } = await admin
@@ -67,7 +97,7 @@ export async function POST(req: NextRequest) {
     .eq("client_id", clientId)
     .eq("status", "active")
     .maybeSingle();
-  if (lookupError) return fail(lookupError.message, 500);
+  if (lookupError) return serverError("coaching lookup", lookupError);
   if (existing) return NextResponse.json({ result: "resent" });
 
   const { error: insertError } = await admin.from("coachings").insert({
@@ -81,7 +111,7 @@ export async function POST(req: NextRequest) {
   // Unique violation: another trainer added them first, or this trainer has an
   // open invite for the email already — leave it to a plain invite.
   if (insertError?.code === "23505") return invitePending(me.token, email, name);
-  if (insertError) return fail(insertError.message, 500);
+  if (insertError) return serverError("coaching insert", insertError);
   return NextResponse.json({ result: "added" });
 }
 
@@ -92,6 +122,7 @@ async function invitePending(token: string, email: string, name: string | null) 
     global: { headers: { Authorization: `Bearer ${token}` } },
   });
   const { error } = await asTrainer.rpc("invite_client", { p_email: email, p_name: name ?? "" });
+  // invite_client raises codes the app knows (already_invited, rate_limited…).
   if (error) return fail(error.message);
   return NextResponse.json({ result: "pending" });
 }
@@ -108,7 +139,7 @@ export async function GET(req: NextRequest) {
     .select("client_id")
     .eq("trainer_id", me.user.id)
     .eq("status", "active");
-  if (error) return fail(error.message, 500);
+  if (error) return serverError("clients lookup", error);
 
   const users = await Promise.all(
     (rows ?? []).map((r) => admin.auth.admin.getUserById(r.client_id)),

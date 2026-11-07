@@ -10,7 +10,13 @@ import {
   getClientSessions,
   getLastClientSession,
 } from "./repo";
-import { getCoachings, getClientsAwaitingSignIn, type Coaching } from "./coaching";
+import {
+  getCoachings,
+  getClientsAwaitingSignIn,
+  getIsTrainer,
+  myClients,
+  type Coaching,
+} from "./coaching";
 import type { Plan, WorkoutSession } from "./types";
 import { useMyUserId } from "./auth";
 
@@ -60,6 +66,22 @@ export function useLastClientSession(
     getLastClientSession(clientId),
   );
   return data;
+}
+
+/** Whether I may add clients (undefined while loading). */
+export function useIsTrainer(): boolean | undefined {
+  const me = useMyUserId();
+  const { data } = useSWR(me ? ["is-trainer", me] : null, getIsTrainer);
+  return data;
+}
+
+/** Whether to show Clients: to trainers, and to anyone still coaching
+ *  (e.g. no longer a trainer but with clients left). */
+export function useShowsClients(): boolean {
+  const isTrainer = useIsTrainer();
+  const coachings = useCoachings();
+  const me = useMyUserId();
+  return !!isTrainer || (!!coachings && !!me && myClients(coachings, me).length > 0);
 }
 
 /** Ids of my clients who haven't signed in yet (undefined while loading). */

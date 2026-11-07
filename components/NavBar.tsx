@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { useShowsClients } from "@/lib/hooks";
 
 export function NavBar() {
   const path = usePathname() ?? "/";
+  const showsClients = useShowsClients();
   const clientsActive = path.startsWith("/clients");
   const historyActive = path.startsWith("/history");
   const homeActive =
@@ -19,9 +21,11 @@ export function NavBar() {
       <NavLink href="/history" active={historyActive}>
         History
       </NavLink>
-      <NavLink href="/clients" active={clientsActive}>
-        Clients
-      </NavLink>
+      {showsClients && (
+        <NavLink href="/clients" active={clientsActive}>
+          Clients
+        </NavLink>
+      )}
     </nav>
   );
 }

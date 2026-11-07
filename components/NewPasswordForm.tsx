@@ -5,6 +5,9 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { inputClass } from "@/components/ui/Input";
 
+// Keep in step with Supabase → Authentication → Email → Minimum password length.
+export const MIN_PASSWORD_LENGTH = 8;
+
 /** Sets the signed-in user's password (after a reset link, or from Account). */
 export function NewPasswordForm({
   email,
@@ -49,7 +52,7 @@ export function NewPasswordForm({
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        minLength={6}
+        minLength={MIN_PASSWORD_LENGTH}
       />
       <input
         className={inputClass}
@@ -59,7 +62,7 @@ export function NewPasswordForm({
         value={repeat}
         onChange={(e) => setRepeat(e.target.value)}
         required
-        minLength={6}
+        minLength={MIN_PASSWORD_LENGTH}
       />
 
       {error && <p className="text-sm text-red-500">{error}</p>}

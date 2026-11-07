@@ -78,6 +78,7 @@ describe("coaching", () => {
     ["cannot_invite_self", "You can't invite yourself."],
     ["already_invited", "You've already added or invited this email."],
     ["rate_limited", "Too many emails sent just now. Try again in a little while."],
+    ["not_trainer", "Only trainers can add clients. Ask the app's admin to make you one."],
     [
       "already_has_trainer",
       "You already have a trainer. Leave them first (Account page) to accept a new one.",

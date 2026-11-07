@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { inputClass } from "@/components/ui/Input";
 import { MoodBear } from "@/components/MoodBear";
-import { NewPasswordForm } from "@/components/NewPasswordForm";
+import { MIN_PASSWORD_LENGTH, NewPasswordForm } from "@/components/NewPasswordForm";
 import { cn } from "@/lib/cn";
 
 const TITLES = { in: "Sign in", up: "Create account", reset: "Reset password" };
@@ -86,7 +86,8 @@ export function SignIn() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={6}
+            // Existing passwords may be shorter than today's minimum.
+            minLength={mode === "up" ? MIN_PASSWORD_LENGTH : undefined}
           />
         )}
         {mode === "in" && (

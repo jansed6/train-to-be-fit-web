@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { MoodBear } from "@/components/MoodBear";
 import { ClientCard } from "@/components/clients/ClientCard";
 import { InviteForm } from "@/components/clients/InviteForm";
-import { useClientsAwaitingSignIn, useCoachings } from "@/lib/hooks";
+import { useClientsAwaitingSignIn, useCoachings, useIsTrainer } from "@/lib/hooks";
 import { useMyUserId } from "@/lib/auth";
 import {
   myClients,
@@ -19,13 +19,14 @@ import {
 export default function ClientsPage() {
   const coachings = useCoachings();
   const awaitingSignIn = useClientsAwaitingSignIn();
+  const isTrainer = useIsTrainer();
   const me = useMyUserId();
   const [adding, setAdding] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<{ id: string; message: string } | null>(null);
 
-  if (!coachings || !me) return null;
+  if (!coachings || !me || isTrainer === undefined) return null;
 
   const clients = myClients(coachings, me);
   const pendingInvites = myPendingInvites(coachings, me);
@@ -50,7 +51,7 @@ export default function ClientsPage() {
     <Container>
       <div className="mb-3 flex items-center justify-between gap-2">
         <PageTitle>Clients</PageTitle>
-        {!adding && (
+        {isTrainer && !adding && (
           <Button
             variant="primary"
             size="sm"
@@ -84,8 +85,9 @@ export default function ClientsPage() {
           </div>
           <p>No clients yet.</p>
           <p className="text-sm">
-            Add a client by email: they get an invite to set a password, and you
-            can build their plans and follow their workouts.
+            {isTrainer
+              ? "Add a client by email: they get an invite to set a password, and you can build their plans and follow their workouts."
+              : "Only trainers can add clients. Ask the app's admin to make you one."}
           </p>
         </div>
       )}

@@ -93,6 +93,21 @@ export async function addClient(email: string, name: string): Promise<AddClientR
   return json.result as AddClientResult;
 }
 
+/** Whether I may add clients (a row in public.trainers, granted by hand). */
+export async function getIsTrainer(): Promise<boolean> {
+  const { data: session } = await supabase.auth.getSession();
+  const me = session.session?.user.id;
+  if (!me) return false;
+  const { data, error } = await supabase
+    .from("trainers")
+    .select("user_id")
+    .eq("user_id", me)
+    .maybeSingle();
+  // Before schema.sql has added the table there are no trainers yet.
+  if (error) return false;
+  return data !== null;
+}
+
 /** Ids of my clients who haven't signed in yet (their invite is unused). */
 export async function getClientsAwaitingSignIn(): Promise<string[]> {
   const res = await clientsApi({ method: "GET" });
@@ -142,6 +157,8 @@ export function coachingErrorMessage(err: unknown): string {
       return "You've already added or invited this email.";
     case "rate_limited":
       return "Too many emails sent just now. Try again in a little while.";
+    case "not_trainer":
+      return "Only trainers can add clients. Ask the app's admin to make you one.";
     case "already_has_trainer":
       return "You already have a trainer. Leave them first (Account page) to accept a new one.";
     case "invalid_email":

@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { useShowsClients } from "@/lib/hooks";
 import { MoodBear } from "./MoodBear";
 
 /** Desktop top navigation (hidden on mobile, where the bottom NavBar is used). */
 export function TopNav() {
   const path = usePathname() ?? "/";
+  const showsClients = useShowsClients();
   const clientsActive = path.startsWith("/clients");
   const historyActive = path.startsWith("/history");
   const accountActive = path.startsWith("/account");
@@ -27,9 +29,11 @@ export function TopNav() {
           <TopLink href="/history" active={historyActive}>
             History
           </TopLink>
-          <TopLink href="/clients" active={clientsActive}>
-            Clients
-          </TopLink>
+          {showsClients && (
+            <TopLink href="/clients" active={clientsActive}>
+              Clients
+            </TopLink>
+          )}
         </nav>
         <div className="ml-auto">
           <TopLink href="/account" active={accountActive}>
