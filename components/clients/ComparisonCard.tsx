@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/Card";
 import { findCatalogExercise } from "@/lib/exerciseCatalog";
 import { formatTargets } from "@/lib/planTargets";
-import { formatWeight } from "@/lib/format";
+import { formatLoggedSet } from "@/lib/format";
 import type { ExerciseComparison } from "@/lib/compare";
 
 export function ComparisonCard({ comparison }: { comparison: ExerciseComparison }) {
@@ -35,7 +35,7 @@ export function ComparisonCard({ comparison }: { comparison: ExerciseComparison 
                   key={i}
                   className="rounded-lg bg-surface-2 px-2 py-1 text-[13px]"
                 >
-                  {formatWeight(set.weightKg)} kg × {set.reps}
+                  {formatLoggedSet(set)}
                 </div>
               ))
             : sets.map((setComparison, i) => {
@@ -58,7 +58,7 @@ export function ComparisonCard({ comparison }: { comparison: ExerciseComparison 
                         : "bg-surface-2"
                     }`}
                   >
-                    {formatWeight(setComparison.logged.weightKg)} kg × {setComparison.logged.reps}
+                    {formatLoggedSet(setComparison.logged)}
                   </div>
                 );
               })}

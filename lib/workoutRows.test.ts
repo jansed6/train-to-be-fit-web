@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   prefilledRows,
   buildSession,
+  isValidRow,
   uncheckedSetCount,
   weightsFromSessions,
   type WeightsByKey,
@@ -121,5 +122,60 @@ describe("uncheckedSetCount", () => {
       { weight: "1", reps: "1", done: false, prefilled: true },
       { weight: "", reps: "", done: false, prefilled: false },
     ] }])).toBe(2);
+  });
+});
+
+describe("timed exercises", () => {
+  const plank: Exercise = {
+    id: "p", name: "Plank", catalogId: "plank", sets: 2, reps: "", timed: true,
+    targets: [{ reps: "", seconds: 45 }, { reps: "", seconds: 60 }],
+  };
+
+  it("prefills each set's time and 0 kg for a bodyweight hold", () => {
+    expect(prefilledRows(plank, new Map())).toEqual([
+      { weight: "0", reps: "", time: "0:45", done: false, prefilled: true },
+      { weight: "0", reps: "", time: "1:00", done: false, prefilled: true },
+    ]);
+  });
+
+  it("needs a time above 0; the weight may stay empty", () => {
+    const row = (weight: string, time: string) => ({ weight, reps: "", time, done: false, prefilled: false });
+    expect(isValidRow(row("", "0:30"), true)).toBe(true);
+    expect(isValidRow(row("12,5", "45"), true)).toBe(true);
+    expect(isValidRow(row("", "0:00"), true)).toBe(false);
+    expect(isValidRow(row("", ""), true)).toBe(false);
+    expect(isValidRow(row("abc", "45"), true)).toBe(false);
+    // the same row isn't a valid rep set: it has no reps
+    expect(isValidRow(row("0", "45"))).toBe(false);
+  });
+
+  it("saves ticked timed sets with their seconds and no reps", () => {
+    const s = buildSession({
+      id: "s", planId: "plan", dayId: "day", planDayName: "Core", startedAt: 0, finishedAt: 1000,
+      planned: [plank],
+      exercises: [{
+        id: "p", name: "Plank", catalogId: "plank", planned: true, timed: true, targets: plank.targets!,
+        rows: [
+          { weight: "", reps: "", time: "0:52", done: true, prefilled: false },
+          { weight: "10", reps: "", time: "40", done: true, prefilled: false },
+        ],
+      }],
+    })!;
+    expect(s.exercises[0]).toMatchObject({ timed: true, targets: plank.targets });
+    expect(s.exercises[0].sets).toEqual([
+      { setNumber: 1, weightKg: 0, reps: 0, seconds: 52 },
+      { setNumber: 2, weightKg: 10, reps: 0, seconds: 40 },
+    ]);
+  });
+
+  it("keeps a timed exercise removed mid-workout as timed and skipped", () => {
+    const s = buildSession({
+      id: "s", planId: "plan", dayId: "day", planDayName: "Core", startedAt: 0, finishedAt: 1000,
+      planned: [plank, { id: "q", name: "Squat", sets: 1, reps: "5" }],
+      exercises: [{ id: "q", name: "Squat", planned: true, targets: [{ reps: "5" }],
+        rows: [{ weight: "50", reps: "5", done: true, prefilled: false }] }],
+    })!;
+    expect(s.exercises[1]).toMatchObject({ id: "p", timed: true, sets: [] });
+    expect(s.exercises[0].timed).toBeUndefined();
   });
 });

@@ -135,11 +135,17 @@ function compareExerciseSets(loggedSets: LoggedSet[], targets: SetTarget[]): Set
  * Returns true if a logged set is below its target.
  * A set is below when:
  * - The target has a weight and the logged weight is lower, OR
+ * - The target has a time and the logged time is shorter, OR
  * - The target reps have a lower bound and the logged reps are lower.
  */
 function isSetBelowTarget(logged: LoggedSet, target: SetTarget): boolean {
   // Check weight
   if (target.weightKg !== undefined && logged.weightKg < target.weightKg) {
+    return true;
+  }
+
+  // Check time (timed sets have no reps)
+  if (target.seconds !== undefined && (logged.seconds ?? 0) < target.seconds) {
     return true;
   }
 

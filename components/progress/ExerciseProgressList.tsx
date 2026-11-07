@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Sparkline } from "@/components/progress/Sparkline";
 import { exerciseSummaries } from "@/lib/progress";
-import { formatWeight } from "@/lib/format";
+import { formatDuration, formatWeight } from "@/lib/format";
 import type { WorkoutSession } from "@/lib/types";
 
 export function ExerciseProgressList({
@@ -30,7 +30,8 @@ export function ExerciseProgressList({
               <div className="min-w-0">
                 <div className="truncate font-medium">{s.name}</div>
                 <div className="text-xs text-muted">
-                  {formatWeight(s.latestWeight)} kg · {s.sessions} sessions
+                  {s.timed ? formatDuration(s.latestSeconds ?? 0) : `${formatWeight(s.latestWeight)} kg`}{" "}
+                  · {s.sessions} sessions
                 </div>
               </div>
               <Sparkline points={s.points} />

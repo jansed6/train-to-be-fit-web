@@ -6,6 +6,8 @@ interface StarterExercise {
   catalogId: string;
   sets: number;
   reps: string;
+  /** A timed exercise: each set is held this long (reps stay empty). */
+  seconds?: number;
 }
 interface StarterDay {
   name: string;
@@ -55,7 +57,7 @@ export const starterPlans: StarterPlan[] = [
           { catalogId: "leg_press", sets: 3, reps: "10-12" },
           { catalogId: "leg_curl", sets: 3, reps: "12-15" },
           { catalogId: "calf_raise", sets: 4, reps: "12-15" },
-          { catalogId: "plank", sets: 3, reps: "45" },
+          { catalogId: "plank", sets: 3, reps: "", seconds: 45 },
           { catalogId: "crunch", sets: 3, reps: "15-20" },
         ],
       },
@@ -82,6 +84,12 @@ export async function addStarterPlan(sp: StarterPlan): Promise<void> {
         sets: e.sets,
         reps: e.reps,
         catalogId: e.catalogId,
+        ...(e.seconds !== undefined
+          ? {
+              timed: true,
+              targets: Array.from({ length: e.sets }, () => ({ reps: "", seconds: e.seconds })),
+            }
+          : {}),
       })),
     })),
   };

@@ -8,6 +8,7 @@ import { PlanCard } from "@/components/home/PlanCard";
 import { StarterPlanCard } from "@/components/StarterPlanCard";
 import { MoodBear } from "@/components/MoodBear";
 import { InviteBanner } from "@/components/clients/InviteBanner";
+import { ResumeWorkoutBanner } from "@/components/home/ResumeWorkoutBanner";
 import { starterPlans } from "@/lib/starterPlans";
 import { usePlans, useSessions } from "@/lib/hooks";
 import { totalVolume } from "@/lib/format";
@@ -48,6 +49,7 @@ export default function HomePage() {
         </Link>
       </div>
 
+      <ResumeWorkoutBanner />
       <InviteBanner />
 
       <div className="mb-6 grid grid-cols-2 gap-3">

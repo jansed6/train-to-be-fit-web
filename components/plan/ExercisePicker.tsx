@@ -6,17 +6,23 @@ import { CloseButton } from "@/components/ui/CloseButton";
 import { inputClass } from "@/components/ui/Input";
 import { cn } from "@/lib/cn";
 import {
+  defaultHoldSeconds,
   exerciseCatalog,
   muscleGroups,
   searchCatalog,
   type CatalogExercise,
 } from "@/lib/exerciseCatalog";
+import { withTargets } from "@/lib/planTargets";
+import type { SetTarget } from "@/lib/types";
 
 export interface PickedExercise {
   name: string;
   sets: number;
   reps: string;
   catalogId: string;
+  /** Set for held moves (stretches, planks), with per-set times in `targets`. */
+  timed?: boolean;
+  targets?: SetTarget[];
 }
 
 export function ExercisePicker({
@@ -49,13 +55,18 @@ export function ExercisePicker({
   function add() {
     const items = exerciseCatalog
       .filter((e) => selected[e.id])
-      .map<PickedExercise>((e) => ({
-        name: e.name,
-        // stretches are held, so the "reps" are seconds
-        sets: e.group === "Stretching" ? 2 : 3,
-        reps: e.group === "Stretching" ? "30 s" : "10",
-        catalogId: e.id,
-      }));
+      .map<PickedExercise>((e) => {
+        const hold = defaultHoldSeconds(e);
+        if (hold === null) return { name: e.name, sets: 3, reps: "10", catalogId: e.id };
+        // Stretches and planks are held: timed sets instead of reps.
+        const count = e.group === "Stretching" ? 2 : 3;
+        return {
+          name: e.name,
+          catalogId: e.id,
+          timed: true,
+          ...withTargets(Array.from({ length: count }, () => ({ reps: "", seconds: hold }))),
+        };
+      });
     if (items.length) onAdd(items);
     onClose();
   }

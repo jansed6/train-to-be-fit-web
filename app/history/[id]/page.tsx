@@ -11,7 +11,7 @@ import { MUSCLES, sessionLevels, type MuscleKey } from "@/lib/muscles";
 import {
   formatDate,
   formatDuration,
-  formatWeight,
+  formatLoggedSet,
   totalVolume,
 } from "@/lib/format";
 
@@ -91,7 +91,7 @@ export default function SessionDetailPage({
                     >
                       <span className="text-muted">Set {set.setNumber}</span>
                       <span className="font-semibold tabular-nums">
-                        {formatWeight(set.weightKg)} kg × {set.reps}
+                        {formatLoggedSet(set)}
                       </span>
                     </div>
                   ))

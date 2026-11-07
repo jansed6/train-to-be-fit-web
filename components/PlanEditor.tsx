@@ -68,6 +68,8 @@ export function PlanEditor({ initial, clientId }: { initial?: Plan; clientId?: s
                   sets: it.sets,
                   reps: it.reps,
                   catalogId: it.catalogId,
+                  ...(it.targets ? { targets: it.targets } : {}),
+                  ...(it.timed ? { timed: true } : {}),
                 })),
               ],
             }

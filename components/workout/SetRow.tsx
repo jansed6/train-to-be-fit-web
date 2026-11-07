@@ -1,24 +1,33 @@
 import { cn } from "@/lib/cn";
 import { inputClass } from "@/components/ui/Input";
-import { formatWeight } from "@/lib/format";
+import { formatDuration, formatWeight, parseDuration } from "@/lib/format";
 import { parseWeight, type SetRow as SetRowData } from "@/lib/workoutRows";
 
 const WEIGHT_STEP = 1;
 const REPS_STEP = 1;
+const TIME_STEP = 5;
 
 export function SetRow({
   index,
   row,
+  timed = false,
   canConfirm,
   onChange,
   onConfirm,
 }: {
   index: number;
   row: SetRowData;
+  /** The second column is the set's time instead of its reps. */
+  timed?: boolean;
   canConfirm: boolean;
   onChange: (patch: Partial<SetRowData>) => void;
   onConfirm: () => void;
 }) {
+  function stepTime(delta: number) {
+    const current = parseDuration(row.time ?? "") ?? 0;
+    onChange({ time: formatDuration(Math.max(0, current + delta)), done: false });
+  }
+
   function stepWeight(delta: number) {
     const current = parseWeight(row.weight) ?? 0;
     const next = Math.max(0, Math.round((current + delta) * 100) / 100);
@@ -47,15 +56,29 @@ export function SetRow({
         />
       </Stepper>
 
-      <Stepper onMinus={() => stepReps(-REPS_STEP)} onPlus={() => stepReps(REPS_STEP)}>
-        <input
-          className={cn(inputClass, "select-text px-1 text-center")}
-          inputMode="numeric"
-          placeholder="0"
-          value={row.reps}
-          onChange={(e) => onChange({ reps: e.target.value, done: false })}
-        />
-      </Stepper>
+      {timed ? (
+        <Stepper onMinus={() => stepTime(-TIME_STEP)} onPlus={() => stepTime(TIME_STEP)}>
+          <input
+            // "0:45" needs the room: inputClass's px-3 would clip it on a phone.
+            className={cn(inputClass, "select-text !px-0.5 text-center tabular-nums")}
+            inputMode="numeric"
+            placeholder="0:00"
+            aria-label={`Set ${index + 1} time`}
+            value={row.time ?? ""}
+            onChange={(e) => onChange({ time: e.target.value, done: false })}
+          />
+        </Stepper>
+      ) : (
+        <Stepper onMinus={() => stepReps(-REPS_STEP)} onPlus={() => stepReps(REPS_STEP)}>
+          <input
+            className={cn(inputClass, "select-text px-1 text-center")}
+            inputMode="numeric"
+            placeholder="0"
+            value={row.reps}
+            onChange={(e) => onChange({ reps: e.target.value, done: false })}
+          />
+        </Stepper>
+      )}
 
       <button
         onClick={onConfirm}

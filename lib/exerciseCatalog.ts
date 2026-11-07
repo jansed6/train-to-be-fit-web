@@ -206,6 +206,14 @@ export function catalogById(id: string | undefined): CatalogExercise | undefined
   return exerciseCatalog.find((e) => e.id === id);
 }
 
+/** Moves that are held rather than repeated (stretches, planks) start out timed
+ *  in a new plan: their default hold in seconds, else null. */
+export function defaultHoldSeconds(e: CatalogExercise): number | null {
+  if (e.group === "Stretching") return 30;
+  if (e.id === "plank" || e.id === "side_bridge") return 45;
+  return null;
+}
+
 /** Lowercase, fold diacritics, strip punctuation — so "Drep" matches "drep". */
 export function normalize(text: string): string {
   return text

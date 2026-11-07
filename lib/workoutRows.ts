@@ -1,4 +1,4 @@
-import { formatWeight } from "./format";
+import { formatDuration, formatWeight, parseDuration } from "./format";
 import { findCatalogExercise, normalize } from "./exerciseCatalog";
 import { setTargets, repsLowerBound } from "./planTargets";
 import type { Exercise, WorkoutSession, SessionExercise, LoggedSet, SetTarget } from "./types";
@@ -6,6 +6,8 @@ import type { Exercise, WorkoutSession, SessionExercise, LoggedSet, SetTarget } 
 export interface SetRow {
   weight: string;
   reps: string;
+  /** Timed exercises: the set's time as typed ("45", "0:45"). */
+  time?: string;
   done: boolean;
   /** True while the weight is carried over from last time (shown greyed). */
   prefilled: boolean;
@@ -17,6 +19,8 @@ export interface ActiveExercise {
   catalogId?: string;
   targets: SetTarget[];
   planned: boolean;
+  /** Sets are timed: rows use `time` instead of `reps`. */
+  timed?: boolean;
   rows: SetRow[];
 }
 
@@ -30,8 +34,14 @@ export function parseWeight(text: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export function isValidRow(row: SetRow): boolean {
+/** A set that can be ticked: a weight (0 for bodyweight) and reps above 0. A
+ *  timed set needs a time above 0; its weight is optional (empty = none). */
+export function isValidRow(row: SetRow, timed = false): boolean {
   const w = parseWeight(row.weight);
+  if (timed) {
+    const s = parseDuration(row.time ?? "");
+    return s !== null && s > 0 && (w === null ? row.weight.trim() === "" : w >= 0);
+  }
   const r = parseInt(row.reps, 10);
   return w !== null && w >= 0 && r > 0;
 }
@@ -82,7 +92,7 @@ function lastTimeWeight(weights: (number | undefined)[], i: number): number | un
 /** Rows for a fresh exercise: reps and weights from per-set targets, falling back
  *  to last time's weights. */
 export function prefilledRows(
-  ex: Pick<Exercise, "name" | "catalogId" | "sets" | "reps" | "targets">,
+  ex: Pick<Exercise, "name" | "catalogId" | "sets" | "reps" | "targets" | "timed">,
   weightsByKey: WeightsByKey,
 ): SetRow[] {
   const targets = setTargets(ex);
@@ -117,6 +127,10 @@ export function prefilledRows(
       weight = "0";
     }
 
+    if (ex.timed) {
+      const time = t.seconds !== undefined ? formatDuration(t.seconds) : "";
+      return { weight, reps: "", time, done: false, prefilled: weight !== "" };
+    }
     return { weight, reps, done: false, prefilled: weight !== "" };
   });
 }
@@ -156,11 +170,14 @@ export function buildSession(input: {
   for (const ex of exercises) {
     // Only ticked sets are saved; each keeps its row's number (not its position
     // among the ticked ones) so it's compared with the planned set it belongs to.
-    const sets: LoggedSet[] = ex.rows.flatMap((r, idx) =>
-      r.done && isValidRow(r)
-        ? [{ setNumber: idx + 1, weightKg: parseWeight(r.weight) ?? 0, reps: parseInt(r.reps, 10) }]
-        : [],
-    );
+    const sets: LoggedSet[] = ex.rows.flatMap((r, idx) => {
+      if (!r.done || !isValidRow(r, ex.timed)) return [];
+      const weightKg = parseWeight(r.weight) ?? 0;
+      return ex.timed
+        ? [{ setNumber: idx + 1, weightKg, reps: 0, seconds: parseDuration(r.time ?? "") ?? 0 }]
+        : [{ setNumber: idx + 1, weightKg, reps: parseInt(r.reps, 10) }];
+    });
+    const timed = ex.timed ? { timed: true } : {};
 
     if (sets.length > 0) hasAnySets = true;
 
@@ -172,6 +189,7 @@ export function buildSession(input: {
         catalogId: ex.catalogId,
         sets,
         targets: ex.targets,
+        ...timed,
       });
       processedIds.add(ex.id);
     } else if (sets.length > 0) {
@@ -182,6 +200,7 @@ export function buildSession(input: {
         catalogId: ex.catalogId,
         sets,
         added: true,
+        ...timed,
       });
       processedIds.add(ex.id);
     }
@@ -196,6 +215,7 @@ export function buildSession(input: {
         catalogId: p.catalogId,
         sets: [],
         targets: setTargets(p),
+        ...(p.timed ? { timed: true } : {}),
       });
     }
   }

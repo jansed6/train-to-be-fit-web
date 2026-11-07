@@ -3,10 +3,13 @@
 // can map these to relational tables or JSONB.
 
 export interface SetTarget {
-  /** Rep target kept as text so ranges like "8-10" survive. */
+  /** Rep target kept as text so ranges like "8-10" survive. Empty for a timed
+   *  exercise. */
   reps: string;
   /** Recommended weight; absent = no weight target. */
   weightKg?: number;
+  /** Timed exercises: how long to hold or keep going, in seconds. */
+  seconds?: number;
 }
 
 export interface Exercise {
@@ -19,6 +22,9 @@ export interface Exercise {
   catalogId?: string;
   /** Per-set rep and weight targets. */
   targets?: SetTarget[];
+  /** Done for a time (plank, stretch, bike) instead of reps: targets and
+   *  logged sets carry `seconds`. */
+  timed?: boolean;
 }
 
 export interface PlanDay {
@@ -42,7 +48,10 @@ export interface LoggedSet {
    *  with its planned set. Older sessions have contiguous numbers 1..n. */
   setNumber: number;
   weightKg: number;
+  /** 0 for a timed set. */
   reps: number;
+  /** Timed sets: how long it lasted, in seconds. */
+  seconds?: number;
 }
 
 export interface SessionExercise {
@@ -55,6 +64,8 @@ export interface SessionExercise {
   targets?: SetTarget[];
   /** True if this exercise was added during the workout. */
   added?: boolean;
+  /** Logged as time (sets carry `seconds`) instead of reps. */
+  timed?: boolean;
 }
 
 export interface WorkoutSession {

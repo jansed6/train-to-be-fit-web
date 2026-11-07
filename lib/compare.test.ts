@@ -69,6 +69,19 @@ describe("compareSession", () => {
     expect(c.exercises.map((e) => e.status)).toEqual(["met", "met"]);
   });
 
+  it("flags a timed set held shorter than planned or lighter than planned", () => {
+    const timed = (seconds: number, setNumber: number, weightKg = 0): LoggedSet => ({ setNumber, weightKg, reps: 0, seconds });
+    const c = compareSession(session([
+      { id: "a", name: "Plank", timed: true, sets: [timed(45, 1), timed(40, 2), timed(70, 3)],
+        targets: [{ reps: "", seconds: 45 }, { reps: "", seconds: 45 }, { reps: "", seconds: 45 }] },
+      { id: "b", name: "Weighted plank", timed: true, sets: [timed(60, 1, 5)],
+        targets: [{ reps: "", seconds: 30, weightKg: 10 }] },
+    ]));
+    expect(c.exercises[0].sets.map((s) => s.below)).toEqual([false, true, false]);
+    expect(c.exercises[1].status).toBe("below");
+    expect(c).toMatchObject({ below: 2 });
+  });
+
   it("marks skipped and added exercises", () => {
     const c = compareSession(session([
       { id: "a", name: "Lunge", sets: [], targets: [{ reps: "12", weightKg: 8 }] },

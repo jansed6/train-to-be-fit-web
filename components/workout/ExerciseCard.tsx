@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SetRow } from "./SetRow";
+import { SetTimer } from "./SetTimer";
 import { findCatalogExercise } from "@/lib/exerciseCatalog";
 import { formatTargets } from "@/lib/planTargets";
 import { cn } from "@/lib/cn";
@@ -16,13 +17,20 @@ export function ExerciseCard({
   onConfirmRow,
   onAddSet,
   onShowDetails,
+  onTimerStart,
+  onTimedSetDone,
 }: {
   exercise: ActiveExercise;
   onChangeRow: (rowIdx: number, patch: Partial<SetRowData>) => void;
   onConfirmRow: (rowIdx: number) => void;
   onAddSet: () => void;
   onShowDetails: () => void;
+  /** Timed exercises: the set timer started. */
+  onTimerStart: () => void;
+  /** Timed exercises: the set timer measured a set. */
+  onTimedSetDone: (rowIdx: number, seconds: number) => void;
 }) {
+  const timed = !!exercise.timed;
   const catalog = findCatalogExercise(exercise.catalogId, exercise.name);
   const [bodyType] = useBodyType();
   const levels = useMemo(() => {
@@ -56,7 +64,7 @@ export function ExerciseCard({
       <div className="flex gap-1.5 text-xs text-muted">
         <span className="w-5 flex-none">Set</span>
         <span className="flex-1 text-center">kg</span>
-        <span className="flex-1 text-center">Reps</span>
+        <span className="flex-1 text-center">{timed ? "Time" : "Reps"}</span>
         <span className="w-9 flex-none" />
       </div>
 
@@ -65,11 +73,16 @@ export function ExerciseCard({
           key={j}
           index={j}
           row={row}
-          canConfirm={isValidRow(row)}
+          timed={timed}
+          canConfirm={isValidRow(row, timed)}
           onChange={(patch) => onChangeRow(j, patch)}
           onConfirm={() => onConfirmRow(j)}
         />
       ))}
+
+      {timed && (
+        <SetTimer rows={exercise.rows} onStart={onTimerStart} onDone={onTimedSetDone} />
+      )}
 
       <Button variant="ghost" size="sm" className="mt-2" onClick={onAddSet}>
         + Add set

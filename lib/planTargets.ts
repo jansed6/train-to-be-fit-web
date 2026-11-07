@@ -1,5 +1,9 @@
 import type { Exercise, SetTarget } from "./types";
-import { formatWeight } from "./format";
+import { formatDuration, formatWeight, parseDuration } from "./format";
+
+/** Hold time a set gets when an exercise is switched to timed and its reps
+ *  don't read as a time. */
+export const DEFAULT_HOLD_SECONDS = 30;
 
 /**
  * Returns the per-set targets for an exercise. Prefers explicit `targets` if present,
@@ -27,11 +31,35 @@ export function withTargets(targets: SetTarget[]): Pick<Exercise, "targets" | "s
 }
 
 /**
+ * Switches targets to timed: each set gets a time (its reps if they read as one,
+ * like "30 s" in older stretching plans, else the default) and keeps its weight.
+ */
+export function toTimedTargets(targets: SetTarget[]): SetTarget[] {
+  return targets.map((t) => {
+    const asTime = /\d\s*(s|sec|secs|seconds)$|:/i.test(t.reps.trim()) ? parseDuration(t.reps) : null;
+    return {
+      reps: "",
+      seconds: t.seconds ?? (asTime && asTime > 0 ? asTime : DEFAULT_HOLD_SECONDS),
+      ...(t.weightKg !== undefined ? { weightKg: t.weightKg } : {}),
+    };
+  });
+}
+
+/** Switches timed targets back to reps (10 a set), keeping the weights. */
+export function toRepTargets(targets: SetTarget[]): SetTarget[] {
+  return targets.map((t) => ({
+    reps: t.reps || "10",
+    ...(t.weightKg !== undefined ? { weightKg: t.weightKg } : {}),
+  }));
+}
+
+/**
  * Formats per-set targets as a concise string for display.
  * Examples:
  *   - "3 × 10 · 25 kg" (all sets identical)
  *   - "12/10/8 · 20–27.5 kg" (different reps, weight range)
  *   - "2 × 8-10" (no weights)
+ *   - "3 × 0:45", "0:45/0:30 · 10 kg" (timed)
  *   - "—" (empty)
  */
 export function formatTargets(targets: SetTarget[]): string {
@@ -39,8 +67,11 @@ export function formatTargets(targets: SetTarget[]): string {
     return "—";
   }
 
-  // Rep part
-  const repsDisplay = targets.map((t) => t.reps || "—");
+  // Rep (or time) part
+  const timed = targets.some((t) => t.seconds !== undefined);
+  const repsDisplay = targets.map((t) =>
+    timed ? (t.seconds !== undefined ? formatDuration(t.seconds) : "—") : t.reps || "—",
+  );
   const allRepsEqual = repsDisplay.every((r) => r === repsDisplay[0]);
   const repsPart = allRepsEqual
     ? `${targets.length} × ${repsDisplay[0]}`

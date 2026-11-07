@@ -1,4 +1,4 @@
-import type { ProgressPoint } from "@/lib/progress";
+import { plotValue, type ProgressPoint } from "@/lib/progress";
 
 /** Tiny inline trend line for the history list. */
 export function Sparkline({ points }: { points: ProgressPoint[] }) {
@@ -8,7 +8,7 @@ export function Sparkline({ points }: { points: ProgressPoint[] }) {
   const n = points.length;
   if (n === 0) return null;
 
-  const weights = points.map((p) => p.weight);
+  const weights = points.map(plotValue);
   let minW = Math.min(...weights);
   let maxW = Math.max(...weights);
   if (minW === maxW) {
@@ -18,7 +18,7 @@ export function Sparkline({ points }: { points: ProgressPoint[] }) {
 
   const x = (i: number) => (n <= 1 ? W / 2 : pad + (W - 2 * pad) * (i / (n - 1)));
   const y = (v: number) => pad + (H - 2 * pad) * (1 - (v - minW) / (maxW - minW));
-  const line = points.map((p, i) => `${x(i)},${y(p.weight)}`).join(" ");
+  const line = points.map((p, i) => `${x(i)},${y(plotValue(p))}`).join(" ");
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} aria-hidden className="flex-none">
@@ -32,7 +32,7 @@ export function Sparkline({ points }: { points: ProgressPoint[] }) {
           strokeLinejoin="round"
         />
       )}
-      <circle cx={x(n - 1)} cy={y(points[n - 1].weight)} r="2.5" fill="var(--accent)" />
+      <circle cx={x(n - 1)} cy={y(plotValue(points[n - 1]))} r="2.5" fill="var(--accent)" />
     </svg>
   );
 }
