@@ -1,7 +1,7 @@
 // The workout in progress, kept in this browser's storage so a reload, a closed
-// tab or the phone suspending the browser doesn't lose it. One slot per browser:
-// it holds the latest workout with at least one ticked set, and is cleared when
-// that workout is saved or discarded.
+// tab, leaving for another page or the phone suspending the browser doesn't lose
+// it. One slot per browser: it holds the workout open since it was started, and
+// is cleared when that workout is saved or discarded.
 
 import type { ActiveExercise } from "./workoutRows";
 import type { Exercise } from "./types";
@@ -19,9 +19,29 @@ export interface WorkoutDraft {
   /** The day's planned exercises when the workout started (the plan snapshot). */
   planned: Exercise[];
   exercises: ActiveExercise[];
+  /** Something was typed, ticked or moved. An untouched workout (only opened)
+   *  is replaced without asking when another one starts. Absent in drafts
+   *  saved before this field: those always had a ticked set. */
+  touched?: boolean;
 }
 
 const KEY = "ttbf.activeWorkout";
+/** Fired on this page when the draft is written or cleared (the storage event
+ *  only reaches other tabs). */
+export const DRAFT_CHANGED = "ttbf:draft-changed";
+
+function notify() {
+  try {
+    window.dispatchEvent(new Event(DRAFT_CHANGED));
+  } catch {
+    // no window (tests)
+  }
+}
+
+/** Whether starting another workout should ask before replacing this one. */
+export function isTouched(draft: WorkoutDraft): boolean {
+  return draft.touched ?? true;
+}
 
 /** Parses stored text into a draft; anything malformed reads as no draft. */
 export function parseDraft(raw: string | null): WorkoutDraft | null {
@@ -38,7 +58,8 @@ export function parseDraft(raw: string | null): WorkoutDraft | null {
       typeof d.startedAt === "number" &&
       Array.isArray(d.planned) &&
       Array.isArray(d.exercises) &&
-      d.exercises.every((ex: unknown) => Array.isArray((ex as ActiveExercise)?.rows))
+      d.exercises.every((ex: unknown) => Array.isArray((ex as ActiveExercise)?.rows)) &&
+      (d.touched === undefined || typeof d.touched === "boolean")
     ) {
       return d as WorkoutDraft;
     }
@@ -62,6 +83,7 @@ export function writeDraft(draft: WorkoutDraft): void {
   } catch {
     // storage blocked or full: the workout still works, it just isn't kept
   }
+  notify();
 }
 
 export function clearDraft(): void {
@@ -70,6 +92,7 @@ export function clearDraft(): void {
   } catch {
     // storage blocked
   }
+  notify();
 }
 
 /** Ticked sets across the workout. */

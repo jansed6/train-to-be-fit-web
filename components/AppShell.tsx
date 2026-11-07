@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { SetPasswordScreen, SignIn } from "./SignIn";
 import { NavBar } from "./NavBar";
 import { TopNav } from "./TopNav";
+import { ActiveWorkoutBar } from "./ActiveWorkoutBar";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -29,6 +30,7 @@ function Shell({ children }: { children: ReactNode }) {
   return (
     <>
       <TopNav />
+      <ActiveWorkoutBar />
       {children}
       <NavBar />
     </>

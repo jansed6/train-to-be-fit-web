@@ -14,15 +14,15 @@ import {
   type ActiveExercise,
   type WeightsByKey,
 } from "./workoutRows";
-import { clearDraft, doneSetCount, readDraft, writeDraft, type WorkoutDraft } from "./workoutDraft";
+import { clearDraft, isTouched, readDraft, writeDraft, type WorkoutDraft } from "./workoutDraft";
 import type { Exercise } from "./types";
 
 /** What the picker hands over when exercises are added mid-workout. */
 type AddedExercise = Pick<Exercise, "name" | "catalogId" | "sets" | "reps" | "targets" | "timed">;
 
 /** Loads a plan day. Reps and weights come from per-set targets, falling back
- *  to last time's weights (greyed). A workout with a ticked set is kept in this
- *  browser (see workoutDraft) and picked up again when the page reopens. */
+ *  to last time's weights (greyed). The open workout is kept in this browser
+ *  (see workoutDraft) and picked up again when the page reopens. */
 export function useActiveWorkout(planId: string, dayId: string) {
   const [planDayName, setPlanDayName] = useState("");
   const [exercises, setExercises] = useState<ActiveExercise[] | null>(null);
@@ -32,6 +32,8 @@ export function useActiveWorkout(planId: string, dayId: string) {
   /** Another unfinished workout is kept in this browser; the page asks first. */
   const [otherDraft, setOtherDraft] = useState<WorkoutDraft | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
+  /** Anything typed, ticked or moved yet (see WorkoutDraft.touched). */
+  const [touched, setTouched] = useState(false);
   // Kept so exercises added mid-workout get the same weight prefill.
   const weightsRef = useRef<WeightsByKey>(new Map());
   // The day's Exercise[] for buildSession's plan snapshot.
@@ -59,12 +61,14 @@ export function useActiveWorkout(planId: string, dayId: string) {
         if (!cancelled) {
           setPlanDayName(mine.planDayName);
           setStartedAt(mine.startedAt);
+          setTouched(isTouched(mine));
           setExercises(mine.exercises);
         }
         return;
       }
 
-      if (mine) {
+      // Another workout was only opened, never touched: this one replaces it.
+      if (mine && isTouched(mine)) {
         if (!cancelled) setOtherDraft(mine);
         return;
       }
@@ -99,28 +103,26 @@ export function useActiveWorkout(planId: string, dayId: string) {
     };
   }, [planId, dayId, reloadKey, userId]);
 
-  // Keep the workout in this browser once a set is ticked; with nothing ticked
-  // there is nothing to lose, so the slot is freed again.
+  // Keep the open workout in this browser from the start (its timer is already
+  // running), so leaving for another page or closing the tab can't lose it.
   useEffect(() => {
     if (!exercises || !userId) return;
-    if (doneSetCount(exercises) > 0) {
-      writeDraft({
-        v: 1,
-        userId,
-        sessionId: sessionIdRef.current,
-        planId,
-        dayId,
-        planDayName,
-        startedAt,
-        planned: plannedRef.current,
-        exercises,
-      });
-    } else if (isThisWorkout(readDraft(), userId, planId, dayId)) {
-      clearDraft();
-    }
-  }, [exercises, planDayName, startedAt, planId, dayId, userId]);
+    writeDraft({
+      v: 1,
+      userId,
+      sessionId: sessionIdRef.current,
+      planId,
+      dayId,
+      planDayName,
+      startedAt,
+      planned: plannedRef.current,
+      exercises,
+      touched,
+    });
+  }, [exercises, planDayName, startedAt, planId, dayId, userId, touched]);
 
   function updateRow(exIdx: number, rowIdx: number, patch: Partial<SetRow>) {
+    setTouched(true);
     setExercises((exs) =>
       exs
         ? exs.map((ex, i) =>
@@ -138,6 +140,7 @@ export function useActiveWorkout(planId: string, dayId: string) {
   }
 
   function addSet(exIdx: number) {
+    setTouched(true);
     setExercises((exs) =>
       exs
         ? exs.map((ex, i) => {
@@ -163,6 +166,7 @@ export function useActiveWorkout(planId: string, dayId: string) {
 
   /** Moves the exercise at `from` so it ends up at index `to`. */
   function moveExercise(from: number, to: number) {
+    setTouched(true);
     setExercises((exs) => {
       if (!exs || from === to || to < 0 || to >= exs.length) return exs;
       const next = [...exs];
@@ -173,11 +177,13 @@ export function useActiveWorkout(planId: string, dayId: string) {
   }
 
   function removeExercise(exIdx: number) {
+    setTouched(true);
     setExercises((exs) => (exs ? exs.filter((_ex, i) => i !== exIdx) : exs));
   }
 
   /** Puts a removed exercise back (undo), logged sets and all. */
   function restoreExercise(exercise: ActiveExercise, index: number) {
+    setTouched(true);
     setExercises((exs) => {
       if (!exs) return exs;
       const next = [...exs];
@@ -197,6 +203,7 @@ export function useActiveWorkout(planId: string, dayId: string) {
       targets: setTargets(it),
       rows: prefilledRows(it, weightsRef.current),
     }));
+    setTouched(true);
     setExercises((exs) => (exs ? [...exs, ...added] : exs));
   }
 
@@ -267,13 +274,4 @@ export function useActiveWorkout(planId: string, dayId: string) {
     discard,
     discardOtherDraft,
   };
-}
-
-function isThisWorkout(
-  draft: WorkoutDraft | null,
-  userId: string,
-  planId: string,
-  dayId: string,
-): boolean {
-  return !!draft && draft.userId === userId && draft.planId === planId && draft.dayId === dayId;
 }

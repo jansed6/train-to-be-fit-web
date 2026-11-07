@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { doneSetCount, parseDraft, type WorkoutDraft } from "./workoutDraft";
+import { doneSetCount, isTouched, parseDraft, type WorkoutDraft } from "./workoutDraft";
 
 const draft: WorkoutDraft = {
   v: 1,
@@ -32,8 +32,19 @@ describe("parseDraft", () => {
     ["another version", JSON.stringify({ ...draft, v: 2 })],
     ["no owner", JSON.stringify({ ...draft, userId: undefined })],
     ["rows missing", JSON.stringify({ ...draft, exercises: [{ id: "x" }] })],
+    ["a non-boolean touched", JSON.stringify({ ...draft, touched: "yes" })],
   ])("treats %s as no draft", (_label, raw) => {
     expect(parseDraft(raw)).toBeNull();
+  });
+});
+
+describe("isTouched", () => {
+  it("is what the draft says", () => {
+    expect(isTouched({ ...draft, touched: false })).toBe(false);
+    expect(isTouched({ ...draft, touched: true })).toBe(true);
+  });
+  it("counts drafts saved before the flag as touched (they had a ticked set)", () => {
+    expect(isTouched(parseDraft(JSON.stringify(draft))!)).toBe(true);
   });
 });
 
