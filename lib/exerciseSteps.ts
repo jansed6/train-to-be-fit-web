@@ -1,5 +1,9 @@
 // How-to steps per catalogue exercise: English from free-exercise-db (public domain,
 // https://github.com/yuhonas/free-exercise-db), Slovak translated and reviewed for this app.
+// The glute-machine entries (hip_thrust_machine, standing_hip_thrust_machine,
+// standing_hip_abduction_machine, standing_hip_adduction_machine, belt_squat) were written
+// for this app from the manufacturer's how-to notes (bootybuilder.com) and StrengthLog's
+// exercise guides; belt_squat also adapts free-exercise-db's "Weighted Squat".
 // Loaded lazily by the exercise sheet.
 
 export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
@@ -1569,6 +1573,92 @@ export const EXERCISE_STEPS: Record<string, { sk: string[]; en: string[] }> = {
       "Slowly press against the machine with your legs to move them towards each other while exhaling.",
       "Feel the contraction for a second and begin to move your legs back to the starting position while breathing in. Note: Remember to keep your upper body stationary and avoid fast jerking motions in order to prevent any injuries from occurring.",
       "Repeat for the recommended amount of repetitions."
+    ]
+  },
+  "hip_thrust_machine": {
+    "sk": [
+      "Nastav si záťaž (kolík v stohu závaží alebo kotúče). Sadni si na sedadlo stroja a hornou časťou chrbta sa opri o opierku tesne pod lopatkami.",
+      "Polož chodidlá na zvýšenú plošinu na šírku bokov, špičky mierne von. Sedadlo alebo plošinu nastav tak, aby boli holene v hornej polohe približne zvislo.",
+      "Pevne si zapni pás (alebo prilož podložku) cez panvu, tesne pod bedrovými kosťami, a chyť sa rukovätí. Toto je východisková poloha.",
+      "Bradu stiahni k hrudníku, spevni brucho a s výdychom zatlač pätami, aby si vytlačil panvu nahor, kým telo netvorí rovnú líniu od ramien po kolená. Hore na sekundu zatni sedacie svaly a neprehýbaj sa v krížoch.",
+      "S nádychom kontrolovane spúšťaj panvu, kým necítiš natiahnutie v sedacích svaloch. Závažie medzi opakovaniami neodkladaj.",
+      "Opakuj podľa plánovaného počtu opakovaní. Tip: Ťažší variant je hip thrust na jednej nohe; gumy nasadené na kolíky stroja pridajú napätie v hornej polohe."
+    ],
+    "en": [
+      "Select the weight (pin the stack or load plates). Sit on the machine's seat and rest your upper back against the back pad, just below your shoulder blades.",
+      "Place your feet on the raised footplate about hip-width apart, toes slightly out. Adjust the seat or footplate so your shins are roughly vertical at the top of the movement.",
+      "Fasten the belt (or set the pad) firmly across your pelvis, just below your hip bones, and hold the handles. This will be your starting position.",
+      "Tuck your chin, brace your core and, as you breathe out, drive through your heels to push your hips up until your body forms a straight line from shoulders to knees. Squeeze your glutes for a second at the top without arching your lower back.",
+      "As you breathe in, lower your hips under control until you feel a stretch in your glutes. Don't let the weight rest between repetitions.",
+      "Repeat for the recommended amount of repetitions. Tip: For a harder version, do it on one leg; resistance bands on the machine's band pegs add tension at the top."
+    ]
+  },
+  "standing_hip_thrust_machine": {
+    "sk": [
+      "Nastav si záťaž (kolík v stohu závaží alebo kotúče). Prekroč opierku lýtok a sadni si na sedadlo, chodidlá maj na plošine na šírku bokov.",
+      "Uvoľni páku a spusti podložku tak, aby pevne priliehala cez prednú stranu panvy a hornú časť stehien. Chyť sa bočných alebo stredných rukovätí, ruky maj vystreté. Toto je východisková poloha.",
+      "S výdychom zatlač pätami a vytlač panvu dopredu, kým sa nepostavíš vzpriamene s úplne vystretými bokmi. Kolená maj len mierne pokrčené – práca má vychádzať z bokov.",
+      "Hore na sekundu zatni sedacie svaly. Nezakláňaj sa a neprehýbaj sa v krížoch.",
+      "S nádychom kontrolovane vráť panvu dozadu do východiskovej polohy a opakuj podľa plánovaného počtu opakovaní.",
+      "Po poslednom opakovaní si úplne sadni, zaisti podložku pákou a zostúp zo stroja."
+    ],
+    "en": [
+      "Select the weight (pin the stack or load plates). Step over the calf pad and sit on the seat with your feet on the platform about hip-width apart.",
+      "Release the lever and lower the pad so it rests firmly across the front of your pelvis and upper thighs. Hold the side or centre handles with straight arms. This will be your starting position.",
+      "As you breathe out, push through your heels and drive your hips forward until you stand tall with your hips fully extended. Keep your knees only slightly bent; the work should come from the hips.",
+      "Squeeze your glutes for a second at the top. Don't lean back or arch your lower back.",
+      "As you breathe in, let your hips travel back under control to the starting position, and repeat for the recommended amount of repetitions.",
+      "After the last repetition, sit all the way down, lock the pad with the lever and step off."
+    ]
+  },
+  "standing_hip_abduction_machine": {
+    "sk": [
+      "Nastav si záťaž, postav sa na plošinu stroja a chyť sa bočných alebo stredných rukovätí.",
+      "Chodidlá maj na šírku bokov, boky mierne posuň dozadu do ľahkého podrepu a hrudník drž hore. Vonkajšiu stranu kolien (pri stroji pre jednu nohu vonkajšiu stranu pracovnej nohy) opri o podložky. Toto je východisková poloha.",
+      "S výdychom kontrolovane tlač kolená von proti podložkám, čo najďalej bez toho, aby sa ti posúvali boky alebo kýval trup. Vo vonkajšej polohe na sekundu vydrž.",
+      "S nádychom pomaly vráť kolená späť a sedacie svaly drž stále v napätí – závažie medzi opakovaniami neodkladaj.",
+      "Opakuj podľa plánovaného počtu opakovaní. Na stroji pre jednu nohu urob najprv všetky opakovania jednou nohou a potom vymeň strany. Tip: Pomalé tempo alebo krátke pulzy vo vonkajšej polohe udržia sedacie svaly dlhšie v záťaži."
+    ],
+    "en": [
+      "Select the weight, step onto the machine's platform and hold the side or centre handles.",
+      "Set your feet about hip-width apart, sit your hips slightly back into a shallow half-squat and keep your chest up. Place the outside of your knees (on a single-leg machine, the outside of the working leg) against the pads. This will be your starting position.",
+      "As you breathe out, press your knees out against the pads with control, as far as you can without your hips shifting or your torso swaying. Hold the outer position for a second.",
+      "As you breathe in, slowly let your knees come back in, keeping your glutes under tension; don't let the weight rest between repetitions.",
+      "Repeat for the recommended amount of repetitions. On a single-leg machine, finish all repetitions with one leg, then switch sides. Tip: A slow tempo or short pulses at the outer position keep the glutes working longer."
+    ]
+  },
+  "standing_hip_adduction_machine": {
+    "sk": [
+      "Nastav si záťaž, postav sa na plošinu stroja a chyť sa bočných alebo stredných rukovätí.",
+      "Stoj vzpriamene so spevneným bruchom, nohy maj mierne od seba a vnútornú stranu pracovnej nohy opri o podložku. Toto je východisková poloha.",
+      "S výdychom priťahuj pracovnú nohu k stredu tela proti podložke. Trup drž vzpriamený a boky v rovine.",
+      "S nádychom pomaly vracaj nohu do východiskovej polohy a pritom brzdi závažie – nenechaj ho, aby ti nohu ťahalo von.",
+      "Opakuj podľa plánovaného počtu opakovaní a potom vymeň nohy. Na stroji pre obe nohy priťahuj obe nohy naraz."
+    ],
+    "en": [
+      "Select the weight, step onto the machine's platform and hold the side or centre handles.",
+      "Stand tall with your core braced and your legs slightly apart, with the inside of the working leg against the pad. This will be your starting position.",
+      "As you breathe out, pull the working leg in toward the midline of your body against the pad. Keep your torso upright and your hips level.",
+      "As you breathe in, slowly let the leg return to the starting position, resisting the weight rather than letting it pull your leg out.",
+      "Repeat for the recommended amount of repetitions, then switch legs. On a two-leg machine, bring both legs in together."
+    ]
+  },
+  "belt_squat": {
+    "sk": [
+      "Zapni si opasok okolo bokov a pripoj ho k reťazi alebo ramenu stroja. Postav sa na plošinu do svojho bežného postoja na drep, špičky mierne von, a pre rovnováhu sa chyť rukovätí.",
+      "Spevni brucho a postav sa, aby si záťaž zdvihol zo zarážok (ak má stroj poistnú páku, uvoľni ju). Stoj vzpriamene, záťaž visí z bokov. Toto je východisková poloha.",
+      "S nádychom choď do drepu: pokrč boky aj kolená, hlavu a hrudník drž hore a kolená smeruj v línii so špičkami. Choď tak hlboko, ako zvládneš so správnou technikou – opasok nezaťažuje chrbticu, takže zvyčajne zvládneš drep so stehnami pod vodorovnou polohou.",
+      "S výdychom zatlač celým chodidlom do plošiny, vystri nohy a postav sa späť do východiskovej polohy. Hore zatni sedacie svaly.",
+      "Opakuj podľa plánovaného počtu opakovaní a pred odopnutím opaska záťaž znova zaisti.",
+      "Bez stroja: postav sa na dve rovné lavičky na šírku ramien, s opaskom na záťaž a kotúčom, ktorý visí medzi nimi (ako na fotkách)."
+    ],
+    "en": [
+      "Put the belt around your hips and attach it to the machine's chain or lever arm. Stand on the platform in your normal squat stance, toes slightly out, and hold the handles for balance.",
+      "Brace your core and stand up to lift the weight off the stops (release the safety lever if the machine has one). Stand tall with the weight hanging from your hips. This will be your starting position.",
+      "As you breathe in, squat down by bending your hips and knees, keeping your head and chest up and your knees in line with your toes. Go as deep as you can with good form; the belt doesn't load your spine, so you can usually get your thighs below parallel.",
+      "As you breathe out, push through your whole foot, straighten your legs and stand back up to the starting position. Squeeze your glutes at the top.",
+      "Repeat for the recommended amount of repetitions, then secure the weight again before unhooking the belt.",
+      "Without a machine: stand on two flat benches set shoulder-width apart, with a weight plate hanging from a dipping belt between them (as in the photos)."
     ]
   },
   "seated_calf_raise": {

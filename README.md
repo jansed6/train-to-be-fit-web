@@ -113,5 +113,10 @@ the client's own.
 
 - Exercise photos and how-to steps: [free-exercise-db](https://github.com/yuhonas/free-exercise-db)
   (Unlicense / public domain) — `public/exercises/`, `lib/exerciseSteps.ts`.
+- Glute-machine exercises (hip thrust machine, standing hip thrust, standing hip
+  abduction/adduction, belt squat): steps written for this app from the machine
+  descriptions at [BootyBuilder](https://bootybuilder.com/product-category/machines) and the
+  [StrengthLog](https://www.strengthlog.com/exercise-directory/) exercise guides. No
+  manufacturer photos are used; the belt squat shows free-exercise-db's "Weighted Squat".
 - Body muscle map (SVG paths): [react-native-body-highlighter](https://github.com/HichamELBSI/react-native-body-highlighter)
   by Hicham Elabbassi, MIT License — see `lib/bodyMapData.ts`.
