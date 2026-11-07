@@ -10,15 +10,19 @@ const url =
 const publishableKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "your-publishable-key";
 
-/** What the email link that opened this page says — a password-reset sign-in,
- *  or why the link failed (expired, already used). Read before the client
- *  consumes the URL hash. */
+/** What the email link that opened this page says — a sign-in that needs a
+ *  password set (a reset, or a trainer's invite to a new account), or why the
+ *  link failed (expired, already used). Read before the client consumes the
+ *  URL hash. */
 export const authRedirect = readAuthRedirect();
 
 export const supabase = createClient(url, publishableKey);
 
-function readAuthRedirect(): { recovery: boolean; error: string | null } {
-  if (typeof window === "undefined") return { recovery: false, error: null };
+function readAuthRedirect(): {
+  passwordSetup: "recovery" | "invite" | null;
+  error: string | null;
+} {
+  if (typeof window === "undefined") return { passwordSetup: null, error: null };
   const params = new URLSearchParams(window.location.hash.slice(1));
   const error = params.get("error_description");
   if (error) {
@@ -27,8 +31,10 @@ function readAuthRedirect(): { recovery: boolean; error: string | null } {
     const { pathname, search } = window.location;
     window.history.replaceState(window.history.state, "", pathname + search);
   }
+  const type = params.get("type");
   return {
-    recovery: params.get("type") === "recovery" && params.has("access_token"),
+    passwordSetup:
+      params.has("access_token") && (type === "recovery" || type === "invite") ? type : null,
     error,
   };
 }

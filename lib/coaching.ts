@@ -59,6 +59,47 @@ export async function inviteClient(email: string, name: string): Promise<string>
   return (await coachingRpc("invite_client", { p_email: email, p_name: name })) as string;
 }
 
+/** Calls the app's server route for clients (app/api/clients) as the
+ *  signed-in user. */
+async function clientsApi(init: { method: "GET" | "POST"; body?: object }): Promise<Response> {
+  const { data } = await supabase.auth.getSession();
+  return fetch("/api/clients", {
+    method: init.method,
+    headers: {
+      authorization: `Bearer ${data.session?.access_token ?? ""}`,
+      ...(init.body ? { "content-type": "application/json" } : {}),
+    },
+    body: init.body ? JSON.stringify(init.body) : undefined,
+  });
+}
+
+/** "added": a new account, emailed an invite to set a password (plans can be
+ *  built straight away). "resent": already my client who hasn't signed in, so
+ *  the invite went out again. "pending": they have an account of their own and
+ *  accept the invite on Home. "invited": the same plain invite, as the server
+ *  can't create accounts. */
+export type AddClientResult = "added" | "resent" | "pending" | "invited";
+
+export async function addClient(email: string, name: string): Promise<AddClientResult> {
+  const res = await clientsApi({ method: "POST", body: { email, name } });
+  if (res.status === 501) {
+    // The server can't create accounts (no service role key): plain invite.
+    await inviteClient(email, name);
+    return "invited";
+  }
+  const json = await res.json().catch(() => ({}));
+  await Promise.all([mutate("coachings"), mutate("clients-awaiting-sign-in")]);
+  if (!res.ok) throw new Error(json.error ?? "");
+  return json.result as AddClientResult;
+}
+
+/** Ids of my clients who haven't signed in yet (their invite is unused). */
+export async function getClientsAwaitingSignIn(): Promise<string[]> {
+  const res = await clientsApi({ method: "GET" });
+  if (!res.ok) return [];
+  return ((await res.json()).awaitingSignIn as string[] | undefined) ?? [];
+}
+
 export async function respondToInvite(id: string, accept: boolean): Promise<void> {
   await coachingRpc("respond_to_invite", { p_id: id, p_accept: accept });
 }
@@ -98,9 +139,11 @@ export function coachingErrorMessage(err: unknown): string {
     case "cannot_invite_self":
       return "You can't invite yourself.";
     case "already_invited":
-      return "You've already invited this email.";
+      return "You've already added or invited this email.";
+    case "rate_limited":
+      return "Too many emails sent just now. Try again in a little while.";
     case "already_has_trainer":
-      return "You already have a trainer. End that coaching first to accept a new one.";
+      return "You already have a trainer. Leave them first (Account page) to accept a new one.";
     case "invalid_email":
       return "Enter a valid email.";
     case "invite_not_found":

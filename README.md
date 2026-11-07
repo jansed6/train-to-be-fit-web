@@ -24,10 +24,14 @@ npm run test:db       # DB tests (needs local Postgres binaries; Postgres.app or
 
 1. Import this repository in Vercel (the app is at the repo root — no root
    directory config needed).
-2. Add two environment variables (Project Settings → Environment Variables):
+2. Add the environment variables (Project Settings → Environment Variables):
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-3. Deploy.
+   - `SUPABASE_SERVICE_ROLE_KEY` — Supabase → Project Settings → API Keys, the
+     secret / `service_role` key. Server-only (no `NEXT_PUBLIC_`): it lets
+     `app/api/clients` create a client's account and email the invite. Without
+     it, adding a client falls back to a plain invite they accept on Home.
+3. Deploy (and redeploy after changing a variable).
 
 After deploying, add your Vercel URL to Supabase → Authentication → URL
 Configuration (Site URL + Redirect URLs) so confirmation/reset emails work.
@@ -69,13 +73,18 @@ change it or sign out (this device or all devices) on the Account page. Each
 browser signs out by itself after 14 days without opening the app and 30 days
 after signing in (`lib/sessionPolicy.ts`), but never during a workout.
 
-**Trainer role:** any user can invite a client by email (Clients page); the
-client accepts on Home; the trainer builds plans in the client's account with
-reps and an optional weight per set; the client trains with those targets
-prefilled (only ticked sets are saved); the trainer sees the client's workout
-count, week, each workout compared with the plan (skipped / below target), and
-exercise progress charts; either side can end the coaching, after which the
-trainer's plans become the client's own.
+**Trainer role:** any user can add a client by email (Clients → + Add
+client). A new email gets an account and an invite email; the trainer builds
+plans right away, and the client opens the link, sets a password and finds
+them waiting (the trainer can resend the invite until they sign in). Someone
+who already has an account gets an invite to accept on Home instead. The
+Clients list shows each client's last workout; the trainer builds plans in the
+client's account with reps and an optional weight per set; the client trains
+with those targets prefilled (only ticked sets are saved); the trainer sees the
+client's workout count, week, each workout compared with the plan (skipped /
+below target), and exercise progress charts. The trainer ends the coaching at the bottom of the client's page; the
+client can leave from the Account page. Either way the trainer's plans become
+the client's own.
 
 ## Credits
 

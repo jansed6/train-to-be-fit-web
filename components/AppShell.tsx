@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { AuthProvider, useAuth } from "@/lib/auth";
-import { RecoveryScreen, SignIn } from "./SignIn";
+import { SetPasswordScreen, SignIn } from "./SignIn";
 import { NavBar } from "./NavBar";
 import { TopNav } from "./TopNav";
 
@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 function Shell({ children }: { children: ReactNode }) {
-  const { session, loading, recovering } = useAuth();
+  const { session, loading, passwordSetup } = useAuth();
 
   if (loading) {
     return <div className="p-10 text-center text-muted">Loading…</div>;
@@ -23,8 +23,8 @@ function Shell({ children }: { children: ReactNode }) {
   if (!session) {
     return <SignIn />;
   }
-  if (recovering) {
-    return <RecoveryScreen />;
+  if (passwordSetup) {
+    return <SetPasswordScreen reason={passwordSetup} />;
   }
   return (
     <>

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { startOfWeekMs, countSince, weekStrip } from "./clientStats";
+import { startOfWeekMs, countSince, weekStrip, daysAgoLabel } from "./clientStats";
 import type { WorkoutSession, SessionExercise } from "./types";
 
 const wed = new Date(2026, 9, 21, 18, 0); // Wed 21 Oct 2026, local time
@@ -16,6 +16,15 @@ describe("clientStats", () => {
     expect(strip.map((d) => d.label)).toEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
     expect(strip.map((d) => d.trained)).toEqual([true, false, true, false, false, false, false]);
     expect(strip.map((d) => d.offPlan)).toEqual([false, false, true, false, false, false, false]);
+  });
+  it("labels days ago by calendar day", () => {
+    expect(daysAgoLabel(at(21, 7), wed)).toBe("Today");
+    expect(daysAgoLabel(new Date(2026, 9, 20, 23, 50).getTime(), wed)).toBe("Yesterday");
+    expect(daysAgoLabel(at(14), wed)).toBe("7 days ago");
+  });
+  it("days ago across the DST change", () => {
+    const thu = new Date(2026, 9, 29, 9, 0); // 25 Oct (DST ends) is 4 days back
+    expect(daysAgoLabel(new Date(2026, 9, 25, 23, 0).getTime(), thu)).toBe("4 days ago");
   });
   it("DST regression: late Sunday session marks Sunday trained", () => {
     // 25 Oct 2026 is when DST ends in Europe/Bratislava (25-hour day)

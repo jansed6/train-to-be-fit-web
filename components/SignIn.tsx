@@ -126,17 +126,32 @@ export function SignIn() {
   );
 }
 
-/** After a password-reset link: set the new password before entering the app. */
-export function RecoveryScreen() {
-  const { session, endRecovery } = useAuth();
+/** After a password-reset link or a trainer's invite: set a password before
+ *  entering the app. */
+export function SetPasswordScreen({ reason }: { reason: "recovery" | "invite" }) {
+  const { session, endPasswordSetup } = useAuth();
+  const trainerEmail = session?.user.user_metadata?.trainer_email as string | undefined;
+
+  if (reason === "invite") {
+    // No skip: without a password the next sign-in needs a reset email.
+    return (
+      <AuthScreen title="Welcome! Set your password">
+        <p className="mb-4 text-sm text-muted">
+          {trainerEmail ? `${trainerEmail} added you` : "Your trainer added you"} —
+          your plans are waiting. Choose a password to sign in with next time.
+        </p>
+        <NewPasswordForm email={session?.user.email ?? ""} onDone={endPasswordSetup} />
+      </AuthScreen>
+    );
+  }
 
   return (
     <AuthScreen title="Set a new password">
-      <NewPasswordForm email={session?.user.email ?? ""} onDone={endRecovery} />
+      <NewPasswordForm email={session?.user.email ?? ""} onDone={endPasswordSetup} />
       <button
         type="button"
         className="mt-4 w-full text-center text-sm text-muted"
-        onClick={endRecovery}
+        onClick={endPasswordSetup}
       >
         Skip — keep my current password
       </button>

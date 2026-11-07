@@ -2,14 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Container, PageTitle, BackLink } from "@/components/ui/layout";
 import { StatTile } from "@/components/ui/StatTile";
 import { Card } from "@/components/ui/Card";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { WeekStrip } from "@/components/clients/WeekStrip";
 import { ClientSessionRow } from "@/components/clients/ClientSessionRow";
-import { useClient, useClientPlans, useClientSessions } from "@/lib/hooks";
-import { clientLabel } from "@/lib/coaching";
+import {
+  useClient,
+  useClientPlans,
+  useClientSessions,
+  useClientsAwaitingSignIn,
+} from "@/lib/hooks";
+import { addClient, clientLabel, coachingErrorMessage, endCoaching } from "@/lib/coaching";
 import { deleteClientPlan } from "@/lib/repo";
 import { startOfWeekMs, countSince, weekStrip } from "@/lib/clientStats";
 
@@ -24,6 +30,40 @@ export default function ClientProfilePage({
   const sessions = useClientSessions(clientId);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [deleteFailed, setDeleteFailed] = useState(false);
+  const [ending, setEnding] = useState(false);
+  const [endError, setEndError] = useState<string | null>(null);
+  const awaitingSignIn = useClientsAwaitingSignIn();
+  // "busy", "sent", or the error message.
+  const [resend, setResend] = useState<string | null>(null);
+  const router = useRouter();
+
+  async function handleResend() {
+    if (!client) return;
+    setResend("busy");
+    try {
+      await addClient(client.clientEmail, client.clientName ?? "");
+      setResend("sent");
+    } catch (err) {
+      setResend(coachingErrorMessage(err));
+    }
+  }
+
+  async function handleEnd() {
+    if (!client) return;
+    const message =
+      `End coaching ${clientLabel(client)}? You'll lose access to their ` +
+      "workouts, and the plans you built become theirs.";
+    if (!confirm(message)) return;
+    setEnding(true);
+    setEndError(null);
+    try {
+      await endCoaching(client.id);
+      router.push("/clients");
+    } catch (err) {
+      setEndError(coachingErrorMessage(err));
+      setEnding(false);
+    }
+  }
 
   async function handleDelete(planId: string, planName: string) {
     if (!confirm(`Delete plan "${planName}"?`)) return;
@@ -41,6 +81,8 @@ export default function ClientProfilePage({
   }
 
   if (client === null) {
+    // Just ended here: on the way back to Clients.
+    if (ending) return null;
     return (
       <Container>
         <p className="py-8 text-center text-muted">Client not found.</p>
@@ -71,6 +113,23 @@ export default function ClientProfilePage({
       <BackLink href="/clients">Clients</BackLink>
       <PageTitle>{clientLabel(client)}</PageTitle>
       <div className="mb-5 text-sm text-muted">{planNames}</div>
+
+      {awaitingSignIn?.has(clientId) && (
+        <Card className="mb-6">
+          <p className="mb-3 text-sm">
+            {clientLabel(client)} hasn’t signed in yet. The invite went to{" "}
+            <strong>{client.clientEmail}</strong> — you can build their plans meanwhile.
+          </p>
+          {resend && resend !== "busy" && (
+            <p className={`mb-3 text-sm ${resend === "sent" ? "text-ok" : "text-red-500"}`}>
+              {resend === "sent" ? "Invite sent again." : resend}
+            </p>
+          )}
+          <Button size="sm" onClick={handleResend} disabled={resend === "busy" || resend === "sent"}>
+            Resend invite
+          </Button>
+        </Card>
+      )}
 
       <div className="mb-6 grid grid-cols-2 gap-3">
         <StatTile value={weekCount} label="this week" />
@@ -145,6 +204,13 @@ export default function ClientProfilePage({
       >
         Exercise progress
       </Link>
+
+      <div className="mt-10 text-center">
+        {endError && <p className="mb-2 text-sm text-red-500">{endError}</p>}
+        <Button variant="danger" size="sm" onClick={handleEnd} disabled={ending}>
+          End coaching
+        </Button>
+      </div>
     </Container>
   );
 }

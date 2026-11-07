@@ -8,8 +8,9 @@ import {
   getSession,
   getClientPlans,
   getClientSessions,
+  getLastClientSession,
 } from "./repo";
-import { getCoachings, type Coaching } from "./coaching";
+import { getCoachings, getClientsAwaitingSignIn, type Coaching } from "./coaching";
 import type { Plan, WorkoutSession } from "./types";
 import { useMyUserId } from "./auth";
 
@@ -49,6 +50,22 @@ export function useClientPlans(clientId: string): Plan[] | undefined {
 export function useClientSessions(clientId: string): WorkoutSession[] | undefined {
   const { data } = useSWR(["client-sessions", clientId], () => getClientSessions(clientId));
   return data;
+}
+
+/** A client's latest workout, for the client list: `null` if none yet. */
+export function useLastClientSession(
+  clientId: string,
+): { date: number; planDayName: string } | null | undefined {
+  const { data } = useSWR(["client-last-session", clientId], () =>
+    getLastClientSession(clientId),
+  );
+  return data;
+}
+
+/** Ids of my clients who haven't signed in yet (undefined while loading). */
+export function useClientsAwaitingSignIn(): Set<string> | undefined {
+  const { data } = useSWR("clients-awaiting-sign-in", getClientsAwaitingSignIn);
+  return data && new Set(data);
 }
 
 /** All coachings (both as trainer and client). */

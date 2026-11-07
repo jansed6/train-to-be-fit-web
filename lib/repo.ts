@@ -152,6 +152,23 @@ export async function deleteSession(id: string): Promise<void> {
   await mutate("sessions");
 }
 
+/** When a client last trained and which workout, for the client list (only
+ *  those two fields, not the whole session). */
+export async function getLastClientSession(
+  clientId: string,
+): Promise<{ date: number; planDayName: string } | null> {
+  const { data, error } = await supabase
+    .from("sessions")
+    .select("date, planDayName:data->>planDayName")
+    .eq("user_id", clientId)
+    .order("date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return { date: new Date(data.date).getTime(), planDayName: data.planDayName ?? "" };
+}
+
 export async function getClientSessions(clientId: string): Promise<WorkoutSession[]> {
   const { data, error } = await supabase
     .from("sessions")

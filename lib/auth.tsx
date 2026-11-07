@@ -22,9 +22,10 @@ import {
 interface AuthState {
   session: Session | null;
   loading: boolean;
-  /** Signed in from a password-reset link: ask for a new password first. */
-  recovering: boolean;
-  endRecovery: () => void;
+  /** Signed in from a password-reset link or a trainer's invite: ask for a
+   *  password before entering the app. */
+  passwordSetup: "recovery" | "invite" | null;
+  endPasswordSetup: () => void;
   /** Why the sign-in screen is showing, if not a plain sign-out. */
   notice: string | null;
 }
@@ -32,8 +33,8 @@ interface AuthState {
 const AuthContext = createContext<AuthState>({
   session: null,
   loading: true,
-  recovering: false,
-  endRecovery: () => {},
+  passwordSetup: null,
+  endPasswordSetup: () => {},
   notice: null,
 });
 
@@ -59,7 +60,7 @@ function markActive(now: number) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [recovering, setRecovering] = useState(authRedirect.recovery);
+  const [passwordSetup, setPasswordSetup] = useState(authRedirect.passwordSetup);
   const [notice, setNotice] = useState<string | null>(authRedirect.error);
   // A workout in progress lives only in memory: never sign out under it.
   const inWorkout = useRef(false);
@@ -91,14 +92,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Drop the previous account's cached plans, sessions and coachings so
         // the next one signing in on this browser never sees them.
         void mutate(() => true, undefined, { revalidate: false });
-        setRecovering(false);
+        setPasswordSetup(null);
         // Only set, never cleared here: a second SIGNED_OUT (e.g. limits
         // enforced twice) mustn't wipe the reason.
         if (expiring.current) setNotice(expiryMessage(expiring.current));
         expiring.current = null;
       }
       if (event === "SIGNED_IN") setNotice(null);
-      if (event === "PASSWORD_RECOVERY") setRecovering(true);
+      if (event === "PASSWORD_RECOVERY") setPasswordSetup("recovery");
       setSession(s);
     });
     function onVisibilityChange() {
@@ -117,8 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         loading,
-        recovering,
-        endRecovery: () => setRecovering(false),
+        passwordSetup,
+        endPasswordSetup: () => setPasswordSetup(null),
         notice,
       }}
     >

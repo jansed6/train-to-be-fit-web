@@ -3,15 +3,23 @@
 import { useState, FormEvent } from "react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { CloseButton } from "@/components/ui/CloseButton";
 import { Input, Field } from "@/components/ui/Input";
-import { inviteClient, coachingErrorMessage } from "@/lib/coaching";
+import { addClient, coachingErrorMessage, type AddClientResult } from "@/lib/coaching";
 
-export function InviteForm() {
+const DONE: Record<AddClientResult, (email: string) => string> = {
+  added: (email) => `Added. ${email} got an email to set a password — you can build their plans now.`,
+  resent: (email) => `Invite sent to ${email} again.`,
+  pending: (email) => `${email} already has an account. They'll see your invite on Home.`,
+  invited: (email) => `Invited. ${email} sees the invite on Home after signing in with this email.`,
+};
+
+/** Adds a client by email; closes once they're in, with what happened. */
+export function InviteForm({ onClose }: { onClose: (done?: string) => void }) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -19,21 +27,21 @@ export function InviteForm() {
 
     setBusy(true);
     setError(null);
-    setSuccess(false);
     try {
-      await inviteClient(email, name);
-      setEmail("");
-      setName("");
-      setSuccess(true);
+      const result = await addClient(email, name);
+      onClose(DONE[result](email.trim()));
     } catch (err) {
       setError(coachingErrorMessage(err));
-    } finally {
       setBusy(false);
     }
   }
 
   return (
     <Card>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="font-bold">Add a client</div>
+        <CloseButton onClick={() => onClose()} />
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <Field label="Email">
@@ -42,6 +50,7 @@ export function InviteForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoFocus
               disabled={busy}
             />
           </Field>
@@ -56,14 +65,12 @@ export function InviteForm() {
             />
           </Field>
         </div>
+        <p className="mb-3 text-sm text-muted">
+          They get an email to set a password. You can build their plans right away.
+        </p>
         {error && <p className="mb-3 text-sm text-red-500">{error}</p>}
-        {success && (
-          <p className="mb-3 text-sm text-ok">
-            Invite sent. It'll appear when they sign in with this email.
-          </p>
-        )}
         <Button type="submit" variant="primary" disabled={busy || !email}>
-          Invite
+          {busy ? "Adding…" : "Add client"}
         </Button>
       </form>
     </Card>

@@ -19,6 +19,21 @@ export function startOfWeekMs(now: Date): number {
 }
 
 /**
+ * How long ago a day was, in calendar days: "Today", "Yesterday", "3 days ago".
+ */
+export function daysAgoLabel(epochMs: number, now: Date): string {
+  const day = new Date(epochMs);
+  day.setHours(0, 0, 0, 0);
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  // Rounded, as a DST change makes one day 23 or 25 hours long.
+  const days = Math.round((today.getTime() - day.getTime()) / 86_400_000);
+  if (days <= 0) return "Today";
+  if (days === 1) return "Yesterday";
+  return `${days} days ago`;
+}
+
+/**
  * Counts sessions that occurred at or after the given moment.
  */
 export function countSince(sessions: WorkoutSession[], sinceMs: number): number {

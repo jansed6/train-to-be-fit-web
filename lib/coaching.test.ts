@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mutate } from "swr";
 import {
   type Coaching,
@@ -11,22 +11,41 @@ import {
   respondToInvite,
   cancelInvite,
   endCoaching,
+  addClient,
 } from "./coaching";
 
 vi.mock("swr", () => ({ mutate: vi.fn(() => Promise.resolve()) }));
 
-// Every RPC fails as if the invite / coaching changed elsewhere.
+// Every RPC but invite_client fails as if the invite / coaching changed elsewhere.
+const rpc = vi.fn((fn: string) =>
+  Promise.resolve(
+    fn === "invite_client"
+      ? { data: "new-invite", error: null }
+      : {
+          data: null,
+          error: { message: fn === "end_coaching" ? "coaching_not_found" : "invite_not_found" },
+        },
+  ),
+);
 vi.mock("./supabase", () => ({
   supabase: {
-    rpc: (fn: string) =>
-      Promise.resolve({
-        data: null,
-        error: { message: fn === "end_coaching" ? "coaching_not_found" : "invite_not_found" },
-      }),
+    rpc: (fn: string) => rpc(fn),
+    auth: { getSession: () => Promise.resolve({ data: { session: { access_token: "tok" } } }) },
   },
 }));
 
-beforeEach(() => vi.mocked(mutate).mockClear());
+beforeEach(() => {
+  vi.mocked(mutate).mockClear();
+  rpc.mockClear();
+});
+afterEach(() => vi.unstubAllGlobals());
+
+/** The server route answering with `status` and `body`. */
+function serverSays(status: number, body: object) {
+  const fetchMock = vi.fn(() => Promise.resolve(new Response(JSON.stringify(body), { status })));
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
 
 const row = (o: Partial<Coaching>): Coaching => ({
   id: "1",
@@ -57,10 +76,11 @@ describe("coaching", () => {
 
   it.each([
     ["cannot_invite_self", "You can't invite yourself."],
-    ["already_invited", "You've already invited this email."],
+    ["already_invited", "You've already added or invited this email."],
+    ["rate_limited", "Too many emails sent just now. Try again in a little while."],
     [
       "already_has_trainer",
-      "You already have a trainer. End that coaching first to accept a new one.",
+      "You already have a trainer. Leave them first (Account page) to accept a new one.",
     ],
     ["invalid_email", "Enter a valid email."],
     ["invite_not_found", "This invite is no longer available."],
@@ -76,6 +96,33 @@ describe("coaching", () => {
     ["endCoaching", () => endCoaching("c"), "coaching_not_found"],
   ])("%s refreshes coachings when it fails, so the stale card goes", async (_name, call, code) => {
     await expect(call()).rejects.toMatchObject({ message: code });
+    expect(mutate).toHaveBeenCalledWith("coachings");
+  });
+
+  it("addClient asks the server as the signed-in user", async () => {
+    const fetchMock = serverSays(200, { result: "added" });
+    await expect(addClient("c@x", "C")).resolves.toBe("added");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/clients",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ email: "c@x", name: "C" }),
+        headers: expect.objectContaining({ authorization: "Bearer tok" }),
+      }),
+    );
+    expect(mutate).toHaveBeenCalledWith("coachings");
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("addClient falls back to a plain invite when the server can't create accounts", async () => {
+    serverSays(501, { error: "not_configured" });
+    await expect(addClient("c@x", "")).resolves.toBe("invited");
+    expect(rpc).toHaveBeenCalledWith("invite_client");
+  });
+
+  it("addClient passes the server's error code on and refreshes coachings", async () => {
+    serverSays(400, { error: "already_invited" });
+    await expect(addClient("c@x", "")).rejects.toMatchObject({ message: "already_invited" });
     expect(mutate).toHaveBeenCalledWith("coachings");
   });
 
