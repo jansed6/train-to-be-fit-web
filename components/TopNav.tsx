@@ -4,14 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { MoodBear } from "./MoodBear";
-import { signOut } from "@/lib/auth";
 
 /** Desktop top navigation (hidden on mobile, where the bottom NavBar is used). */
 export function TopNav() {
   const path = usePathname() ?? "/";
   const clientsActive = path.startsWith("/clients");
   const historyActive = path.startsWith("/history");
-  const homeActive = !clientsActive && !historyActive;
+  const accountActive = path.startsWith("/account");
+  const homeActive = !clientsActive && !historyActive && !accountActive;
 
   return (
     <header className="hidden border-b border-hairline bg-surface md:block">
@@ -31,13 +31,11 @@ export function TopNav() {
             Clients
           </TopLink>
         </nav>
-        <button
-          type="button"
-          onClick={() => signOut()}
-          className="ml-auto text-sm text-muted hover:text-content"
-        >
-          Sign out
-        </button>
+        <div className="ml-auto">
+          <TopLink href="/account" active={accountActive}>
+            Account
+          </TopLink>
+        </div>
       </div>
     </header>
   );

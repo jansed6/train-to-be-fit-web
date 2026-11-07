@@ -31,6 +31,10 @@ npm run test:db       # DB tests (needs local Postgres binaries; Postgres.app or
 
 After deploying, add your Vercel URL to Supabase → Authentication → URL
 Configuration (Site URL + Redirect URLs) so confirmation/reset emails work.
+Password-reset links return to the site they were requested from, so add
+`http://localhost:3000` to Redirect URLs as well to try them locally. Supabase's
+built-in email sender only sends a few emails per hour; set up custom SMTP
+(Authentication → Emails) before real users rely on resets.
 
 ## Setup
 
@@ -59,6 +63,11 @@ Plans built by picking from an exercise catalogue (or custom), a scrollable
 workout logger with ± steppers and a rest timer, weight prefill from the last
 session, workout history, and per-exercise progress charts. Data is stored
 per-user in Supabase Postgres with Row-Level Security.
+
+**Account:** reset a forgotten password from the sign-in screen (email link),
+change it or sign out (this device or all devices) on the Account page. Each
+browser signs out by itself after 14 days without opening the app and 30 days
+after signing in (`lib/sessionPolicy.ts`), but never during a workout.
 
 **Trainer role:** any user can invite a client by email (Clients page); the
 client accepts on Home; the trainer builds plans in the client's account with

@@ -10,7 +10,6 @@ import { MoodBear } from "@/components/MoodBear";
 import { InviteBanner } from "@/components/clients/InviteBanner";
 import { starterPlans } from "@/lib/starterPlans";
 import { usePlans, useSessions } from "@/lib/hooks";
-import { signOut } from "@/lib/auth";
 import { totalVolume } from "@/lib/format";
 import { startOfWeekMs } from "@/lib/clientStats";
 
@@ -41,13 +40,12 @@ export default function HomePage() {
           </div>
           <div className="text-xs text-muted">{greeting()}</div>
         </div>
-        <button
-          type="button"
-          onClick={() => signOut()}
+        <Link
+          href="/account"
           className="text-sm text-muted hover:text-content md:hidden"
         >
-          Sign out
-        </button>
+          Account
+        </Link>
       </div>
 
       <InviteBanner />
